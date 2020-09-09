@@ -1,7 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import Hex from "./Hex";
-import styled from "styled-components";
-import { isCompositeComponentWithType } from "react-dom/test-utils";
+import styled, { css } from "styled-components";
+import cursorAll from "../../_Icons/Cursor/Filled/cursor-AutoScroll-All.png";
+import cursorUp from "../../_Icons/Cursor/Filled/cursor-AutoScroll-up.png";
+import cursorDown from "../../_Icons/Cursor/Filled/cursor-AutoScroll-down.png";
+import cursorLeft from "../../_Icons/Cursor/Filled/cursor-AutoScroll-left.png";
+import cursorRight from "../../_Icons/Cursor/Filled/cursor-AutoScroll-right.png";
+
 // import Path from "./Path";
 // import Cube from "./Cube";
 
@@ -11,6 +16,7 @@ const Base = {
   width: "140%",
   top: "-200px",
   left: "-170px",
+
   // overflow: "hidden",
   /* // overflowX: "hidden",
   // overflowY: "hidden", */
@@ -24,6 +30,21 @@ const Frame = styled.div`
   top: ${(props) => props.top};
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0);
+  cursor: ${(props) => {
+    if (props.cursor == "custom") {
+      return `url(${cursorAll}), auto`;
+    } else if (props.cursor == "custom-up") {
+      return `url(${cursorUp}), auto`;
+    } else if (props.cursor == "custom-down") {
+      return `url(${cursorDown}), auto`;
+    } else if (props.cursor == "custom-right") {
+      return `url(${cursorRight}), auto`;
+    } else if (props.cursor == "custom-left") {
+      return `url(${cursorLeft}), auto`;
+    } else {
+      return "auto";
+    }
+  }};
 
   /* animation: all 1s ease; */
 `;
@@ -31,12 +52,13 @@ export default function Hive(props) {
   const [Hexgrid, setHexgrid] = useState([]);
   const [HexData, setHexData] = useState([]);
   const [delta, setDelta] = useState({ x: 0, y: 0 });
-  const DataSize = 20;
+  const DataSize = 50;
   const [hexsize, setSize] = useState(110);
   let RefisAutoScroll = useRef(false);
   let StartPos = useRef({ x: 0, y: 0 });
   let CurrentPos = useRef({ x: 0, y: 0 });
   let AutoScrollInterval = useRef(null);
+  const [cursor, setCursor] = useState("auto");
   // let deltax = 0;
   // let deltay = 0;
   let jLimit = 22;
@@ -47,6 +69,7 @@ export default function Hive(props) {
     RefisAutoScroll = false;
     CurrentPos = { x: 0, y: 0 };
     StartPos = { x: 0, y: 0 };
+    // cursor = "auto";
     console.log(DataSize);
     let ar = [];
     let leng = DataSize;
@@ -175,7 +198,34 @@ export default function Hive(props) {
     let deltax = currentx - StartPos.x;
     let deltay = currenty - StartPos.y;
     // console.log(deltax, deltay);
-    frameScroll(deltax / 3, deltay / 3);
+    if (Math.abs(deltax) > 20 || Math.abs(deltay) > 20) {
+      if (Math.abs(deltax) < Math.abs(deltay)) {
+        if (deltay > 0) {
+          if (cursor != "custom-down") {
+            setCursor("custom-down");
+          }
+        } else {
+          if (cursor != "custom-up") {
+            setCursor("custom-up");
+          }
+        }
+      } else {
+        if (deltax > 0) {
+          if (cursor != "custom-right") {
+            setCursor("custom-right");
+          }
+        } else {
+          if (cursor != "custom-left") {
+            setCursor("custom-left");
+          }
+        }
+      }
+    } else {
+      if (cursor != "custom") {
+        setCursor("custom");
+      }
+    }
+    frameScroll(deltax, deltay);
     // console.log(e);
   };
   const scroll = (e) => {
@@ -198,7 +248,11 @@ export default function Hive(props) {
       if (!RefisAutoScroll) {
         console.log("mouseDown");
         let frame = document.getElementById("hive");
-        frame.style.cursor = "all-scroll";
+
+        // frame.style.cursor = "all-scroll";
+        // frame.style.cursor = `url(${cursorAll}),auto;`;
+        // console.log(frame.style.cursor);
+        setCursor("custom");
         StartPos = { x: e.clientX, y: e.clientY };
         console.log(StartPos);
         RefisAutoScroll = true;
@@ -221,8 +275,9 @@ export default function Hive(props) {
   const logmouseUp = () => {
     if (RefisAutoScroll) {
       console.log("clearing event");
-      let frame = document.getElementById("hive");
-      frame.style.cursor = "auto";
+      // let frame = document.getElementById("hive");
+      // frame.style.cursor = "auto";
+      setCursor("auto");
       RefisAutoScroll = false;
       clearInterval(AutoScrollInterval);
     }
@@ -262,7 +317,7 @@ export default function Hive(props) {
     <>
       <div style={Base}>
         {/* <Base> */}
-        <Frame left={"0px"} top={"0px"} id="hive">
+        <Frame left={"0px"} top={"0px"} id="hive" cursor={cursor}>
           {/* {Hexgrid.map((hex) => hex)} */}
           {Hexgrid.map((hex, idx) => (
             <Hex
