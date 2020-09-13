@@ -6,6 +6,9 @@ import cursorUp from "../../_Icons/Cursor/Filled/cursor-AutoScroll-up.png";
 import cursorDown from "../../_Icons/Cursor/Filled/cursor-AutoScroll-down.png";
 import cursorLeft from "../../_Icons/Cursor/Filled/cursor-AutoScroll-left.png";
 import cursorRight from "../../_Icons/Cursor/Filled/cursor-AutoScroll-right.png";
+import { useDispatch, useSelector } from "react-redux";
+import { SetAsWall } from "../../redux/graph/graphActions";
+import MemorisexHex from "./MemorisexHex";
 
 // import Path from "./Path";
 // import Cube from "./Cube";
@@ -50,9 +53,8 @@ const Frame = styled.div`
 `;
 export default function Hive(props) {
   const [Hexgrid, setHexgrid] = useState([]);
-  const [HexData, setHexData] = useState([]);
   const [delta, setDelta] = useState({ x: 0, y: 0 });
-  const DataSize = 50;
+  let DataSize = 10;
   const [hexsize, setSize] = useState(110);
   let RefisAutoScroll = useRef(false);
   let StartPos = useRef({ x: 0, y: 0 });
@@ -65,23 +67,14 @@ export default function Hive(props) {
   let iLimit = 8;
 
   // Initialize data grid
+  let ar = useSelector((state) => state.graph.graph);
+  DataSize = useSelector((state) => state.graph.size);
+  const dispatch = useDispatch();
+
   useEffect(() => {
     RefisAutoScroll = false;
     CurrentPos = { x: 0, y: 0 };
     StartPos = { x: 0, y: 0 };
-    // cursor = "auto";
-    console.log(DataSize);
-    let ar = [];
-    let leng = DataSize;
-    for (let i = 0; i < leng; i++) {
-      ar[i] = [];
-      for (let j = 0; j < leng; j++) {
-        ar[i][j] = i * j;
-      }
-    }
-    // ar[3][3] = 6;
-    setHexData(ar);
-    console.log(ar);
   }, []);
 
   useEffect(() => {
@@ -225,7 +218,7 @@ export default function Hive(props) {
         setCursor("custom");
       }
     }
-    frameScroll(deltax, deltay);
+    frameScroll(deltax / 5, deltay / 5);
     // console.log(e);
   };
   const scroll = (e) => {
@@ -241,26 +234,20 @@ export default function Hive(props) {
 
   const logMousedown = (e) => {
     if (e.buttons == 4) {
-      console.log(RefisAutoScroll);
       if (RefisAutoScroll == undefined) {
         RefisAutoScroll = false;
       }
       if (!RefisAutoScroll) {
-        console.log("mouseDown");
         let frame = document.getElementById("hive");
-
-        // frame.style.cursor = "all-scroll";
-        // frame.style.cursor = `url(${cursorAll}),auto;`;
-        // console.log(frame.style.cursor);
         setCursor("custom");
         StartPos = { x: e.clientX, y: e.clientY };
-        console.log(StartPos);
         RefisAutoScroll = true;
         AutoScrollInterval = setInterval(() => {
           autoscroll(CurrentPos);
         }, 10);
       }
     }
+    // if(e.buttons)
   };
 
   const logMousemove = (e) => {
@@ -274,9 +261,6 @@ export default function Hive(props) {
   };
   const logmouseUp = () => {
     if (RefisAutoScroll) {
-      console.log("clearing event");
-      // let frame = document.getElementById("hive");
-      // frame.style.cursor = "auto";
       setCursor("auto");
       RefisAutoScroll = false;
       clearInterval(AutoScrollInterval);
@@ -297,7 +281,13 @@ export default function Hive(props) {
       setDelta((prev) => ({ ...prev, y: prev.y + DataSize - 2 }));
     }
   };
-
+  const logMouseOver = (e) => {
+    if (e.buttons === 1 && e.target.className == "value") {
+      console.log(e.target.dataset);
+      const { i, j } = e.target.dataset;
+      dispatch(SetAsWall({ i, j }));
+    }
+  };
   useEffect(() => {
     console.log("Listener Added");
     window.addEventListener("mousedown", logMousedown);
@@ -305,6 +295,7 @@ export default function Hive(props) {
     window.addEventListener("mouseup", logmouseUp);
     window.addEventListener("wheel", scroll);
     window.addEventListener("keypress", keypress);
+    // window.addEventListener("mouseover", logMouseOver);
     return () => {
       console.log("Listener removed");
       // window.removeEventListener("mousedown", logMousePosition);
@@ -313,6 +304,7 @@ export default function Hive(props) {
       window.removeEventListener("mouseup", logmouseUp);
     };
   }, []);
+  const HexClicked = (i, j) => {};
   return (
     <>
       <div style={Base}>
@@ -320,20 +312,14 @@ export default function Hive(props) {
         <Frame left={"0px"} top={"0px"} id="hive" cursor={cursor}>
           {/* {Hexgrid.map((hex) => hex)} */}
           {Hexgrid.map((hex, idx) => (
-            <Hex
+            <MemorisexHex
               key={hex[0]}
               count={hex[0]}
               s={hex[1] - 40}
               x={hex[2]}
               y={hex[3]}
-              z={0}
-              // val={hex[4].toString()}
-              // val={(hex[4][1] + delta.x) % DataSize}
-              val={
-                HexData[(hex[4][0] + delta.y) % DataSize][
-                  (hex[4][1] + delta.x) % DataSize
-                ]
-              }
+              i={(hex[4][0] + delta.y) % DataSize}
+              j={(hex[4][1] + delta.x) % DataSize}
             />
           ))}
         </Frame>

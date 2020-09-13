@@ -1,6 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, { createElement, useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
-
+import { useSelector, useDispatch } from "react-redux";
+import { SetAsWall } from "../../redux/graph/graphActions";
+import store from "../../redux/store";
 // const OuterDiv = styled.div`
 //   position: absolute;
 //   background-color: rgba(255, 137, 26, 1);
@@ -13,7 +15,12 @@ import styled, { css } from "styled-components";
 // `;
 const Container = styled.div`
   position: absolute;
-  background-color: #6b778d;
+  /* background-color: #6b778d; */
+  background-color: ${(props) => {
+    return props.theme.light
+      ? props.theme.LightTheme.color
+      : props.theme.DarkTheme.color;
+  }};
   /* transition: background-color 250ms ease-out; */
   /* background-color: silver; */
 
@@ -27,14 +34,6 @@ const Container = styled.div`
   /* transition: all 1s ease-in, height 1s ease-out, width 1s ease-out; */
   padding: 0;
 `;
-
-//   const HoverText = styled.p`
-//     color: #000;
-//     :hover {
-//       color: #ed1212;
-//       cursor: pointer;
-//     }
-//   `;
 
 const OuterDiv = styled.div`
   text-align: center;
@@ -66,8 +65,10 @@ const OuterDiv = styled.div`
 const Innerdiv = styled.div`
   text-align: center;
   position: absolute;
+  /* background-color: ${(props) =>
+    props.val == 0 ? css`rgba(0, 0, 0, 0)` : css`rgba(255, 255, 255, 0.4)`}; */
+
   background-color: rgba(255, 255, 255, 0.4);
-  /* background-color: rgba(255, 255, 255, 1); */
   height: 100%;
   width: 100%;
   left: 50%;
@@ -82,26 +83,29 @@ const Innerdiv = styled.div`
   & p {
     transform: rotate(-45deg);
   }
+  /* :hover   {
+    background-color: rgba(255, 255, 255, 0.7);
+  } */
 `;
 
-const Hex = ({ s, x, y, val = "", count }) => {
-  //  rotate(45deg) ",
-  // style["left"] = x;
-  // style["top"] = y;
-  //   console.log(x, y);
+const Hex = ({ s, x, y, count, val }) => {
   const OuterRef = useRef();
+
   useEffect(() => {
     let ele = document.getElementById(count);
     ele.style.top = `${y}px`;
     ele.style.left = `${x}px`;
   }, [y, x]);
+  const logMousedown = (e) => {
+    if (e.buttons == 1) {
+    }
+  };
+  useEffect(() => {
+    OuterRef.current.addEventListener("mouseover", logMousedown);
+  }, []);
 
   return (
-    // <div style={style} >
-    //   <div style={innerStyle}></div>
-    // </div>
     <Container
-      ref={OuterRef}
       s={s}
       x={x}
       y={y}
@@ -109,11 +113,36 @@ const Hex = ({ s, x, y, val = "", count }) => {
       id={count}
       light
       val={val}
+      onMouseOver={(e) => {}}
     >
       <OuterDiv unselectable="on" light val={val}>
-        <Innerdiv unselectable="on">{/* <p>{val}</p> */}</Innerdiv>
+        <Innerdiv ref={OuterRef} unselectable="on" val={val}></Innerdiv>
       </OuterDiv>
     </Container>
   );
 };
-export default Hex;
+const useEqual = (prevProps, nextProps) => {
+  // console.log(prevProps, nextProps);
+  // const state = store.getState()
+  // const graph = state.graph.graph
+
+  // const { i, j } = prevProps
+  // const { next_i, next_j } = nextProps
+  // // console.log(i,j,next_i,next_j)
+
+  // if (typeof next_i!=="undefined" && typeof  next_j!=="undefined") {
+  //   return graph[i][j]==graph[next_i][next_j]
+  // }
+  // return false
+  // console.log(prevProps?.val, nextProps?.val);
+  const preval = prevProps?.val;
+  const nextval = nextProps?.val;
+  if (nextval == undefined) {
+    console.log(preval, nextval);
+    nextval = -1;
+  }
+  return preval === nextval;
+};
+// export default Hex;
+export default React.memo(Hex, useEqual);
+// export default useClick;

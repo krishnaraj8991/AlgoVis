@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-// import logo from "./logo.svg";
 import "./App.css";
-// import Plane from "./components/Plane";
 import NevBar2 from "./NevBars/NevBar2";
 import NevItem from "./NevBars/NevItem";
 import { ReactComponent as CaretDown } from "./_Icons/caret-down.svg";
@@ -10,7 +8,11 @@ import DropdownMenu from "./NevBars/DropdownMenu";
 import Hive from "./components/Hive/Hive";
 import styled, { ThemeProvider, css } from "styled-components";
 import Toggel from "./components/Toggel";
-// import NevBar from "./NevBar";
+
+// Store
+import { Provider } from "react-redux";
+import store from "./redux/store";
+
 const Container = styled.div`
   position: relative;
   /* margin: auto 0; */
@@ -52,31 +54,36 @@ const App = () => {
   };
   return (
     <>
-      <ThemeProvider theme={theme}>
-        <BackGround>
-          <NevBar2>
-            <Toggel
-              on={lightTheme.toString()}
-              clicked={() => {
-                setLighttheme((prev) => !prev);
-              }}
-            />
+      {/* Data Provider */}
+      <Provider store={store}>
+        {/* Theam Provider */}
+        <ThemeProvider theme={theme}>
+          <BackGround>
+            <NevBar2>
+              <Toggel
+                on={lightTheme.toString()}
+                clicked={() => {
+                  setLighttheme((prev) => !prev);
+                }}
+              />
 
-            {/* <NevItem icon="😀">
+              {/* <NevItem icon="😀">
               <DropdownMenu />
             </NevItem>
             <NevItem icon="😄" />
             <NevItem icon="😄" /> */}
-            <NevItem icon={<CaretDown />}>
-              <DropdownMenu />
-            </NevItem>
-          </NevBar2>
-          <Space />
-          <Container>
-            <Hive />
-          </Container>
-        </BackGround>
-      </ThemeProvider>
+              <NevItem icon={<CaretDown />}>
+                <DropdownMenu />
+              </NevItem>
+            </NevBar2>
+            <Space />
+            <Container>
+              <Hive />
+            </Container>
+          </BackGround>
+        </ThemeProvider>
+      </Provider>
+
       {/* <NevBar /> */}
       {/* <Plane /> */}
     </>
