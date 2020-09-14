@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import "./App.css";
-import NevBar2 from "./NevBars/NevBar2";
+import NevBar from "./NevBars/NevBar";
 import NevItem from "./NevBars/NevItem";
 import { ReactComponent as CaretDown } from "./_Icons/caret-down.svg";
 
 import DropdownMenu from "./NevBars/DropdownMenu";
 import Hive from "./components/Hive/Hive";
 import styled, { ThemeProvider, css } from "styled-components";
-import Toggel from "./components/Toggel";
-
+import TheamSwitcher from "./components/TheamSwitcher";
+import Switch from "./components/Switch";
 // Store
 import { Provider } from "react-redux";
 import store from "./redux/store";
@@ -22,7 +22,7 @@ const Container = styled.div`
   height: 80%;
   width: 100%;
   /* padding: 2rem; */
-  background-color: teal;
+  /* background-color: ${(props) => props.theme.DarkTheme}; */
   /* padding: 2rem; */
   /* transform: translate(-50%, -50%); */
   overflow: hidden;
@@ -47,9 +47,13 @@ const App = () => {
     LightTheme: {
       // color: css`rgba(0, 0, 0, 0.5)`,
       color: "#ff6c00",
+      transitionColor: "#263859",
+      // transitionColor: "mediumvioletred",
     },
     DarkTheme: {
       color: "#263859",
+      transitionColor: "#ff6c00",
+      // transitionColor: "darkorange",
     },
   };
   return (
@@ -59,8 +63,14 @@ const App = () => {
         {/* Theam Provider */}
         <ThemeProvider theme={theme}>
           <BackGround>
-            <NevBar2>
-              <Toggel
+            <NevBar>
+              <Switch
+                on={"true"}
+                onclick={() => {
+                  console.log("clicked");
+                }}
+              />
+              <TheamSwitcher
                 on={lightTheme.toString()}
                 clicked={() => {
                   setLighttheme((prev) => !prev);
@@ -75,8 +85,10 @@ const App = () => {
               <NevItem icon={<CaretDown />}>
                 <DropdownMenu />
               </NevItem>
-            </NevBar2>
+            </NevBar>
+
             <Space />
+
             <Container>
               <Hive />
             </Container>
