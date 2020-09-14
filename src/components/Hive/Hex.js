@@ -1,8 +1,15 @@
 import React, { createElement, useEffect, useRef } from "react";
-import styled, { css } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
-import { SetAsWall } from "../../redux/graph/graphActions";
-import store from "../../redux/store";
+import { ReactComponent as Start } from "../../_Icons/start.svg";
+import { ReactComponent as Target } from "../../_Icons/target.svg";
+
+import {
+  StartNode,
+  TargetNode,
+  Wall,
+  WallTransition,
+} from "../../redux/graph/graphStates";
 // const OuterDiv = styled.div`
 //   position: absolute;
 //   background-color: rgba(255, 137, 26, 1);
@@ -38,11 +45,8 @@ const Container = styled.div`
 const OuterDiv = styled.div`
   text-align: center;
   position: absolute;
-  background-color: ${(props) => {
-    if (props.val == 0) {
-      return "Black";
-    }
 
+  background-color: ${(props) => {
     return props.theme.light
       ? props.theme.LightTheme.color
       : props.theme.DarkTheme.color;
@@ -58,39 +62,122 @@ const OuterDiv = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  /* filter: brightness(1); */
   & p {
     transform: rotate(-45deg);
   }
 `;
-const Innerdiv = styled.div`
+
+const SetWAll = (props) => keyframes`
+  0%{
+    height:0%;
+    width:0%;
+    border-radius:50%;
+    /* background-color:lime; */
+    /* background-color:black; */
+
+    background-color:${
+      props.theme.light
+        ? props.theme.LightTheme.transitionColor
+        : props.theme.DarkTheme.transitionColor
+    };
+  }
+  80%{
+
+    /* background-color:lime; */
+    background-color:${
+      props.theme.light
+        ? props.theme.LightTheme.transitionColor
+        : props.theme.DarkTheme.transitionColor
+    };
+
+  }
+  80%{
+    border-radius:50%;
+  }
+  100%{
+    height:100%;
+    width:100%;
+    border-radius:0%;
+
+    /* background-color:black; */
+  }
+`;
+
+const AnimationDiv = styled.div`
   text-align: center;
   position: absolute;
-  /* background-color: ${(props) =>
-    props.val == 0 ? css`rgba(0, 0, 0, 0)` : css`rgba(255, 255, 255, 0.4)`}; */
+  ${(props) => {
+    if (props.val == WallTransition) {
+      return css`
+        /* transition: background-color 250ms ease-out; */
+        animation: ${(props) => SetWAll(props)} 250ms ease-in-out forwards;
+      `;
+    }
+  }}
+  background-color: ${(props) => {
+    if (props.val == Wall || props.val == WallTransition) {
+      return "Black";
+    }
 
-  background-color: rgba(255, 255, 255, 0.4);
+    return props.theme.light
+      ? props.theme.LightTheme.color
+      : props.theme.DarkTheme.color;
+  }};
+  /* background-color: rgba(255, 255, 255, 1); */
   height: 100%;
   width: 100%;
   left: 50%;
   top: 50%;
+  /* border-radius: 50%; */
   /* margin: 0; */
-  clip-path: polygon(11% 12%, 60% 0%, 100% 40%, 88% 88%, 40% 100%, 0 60%);
+  /* clip-path: polygon(11% 12%, 60% 0%, 100% 40%, 88% 88%, 40% 100%, 0 60%); */
   transform: translate(-50%, -50%);
-
   display: flex;
   align-items: center;
   justify-content: center;
   & p {
     transform: rotate(-45deg);
   }
-  /* :hover   {
-    background-color: rgba(255, 255, 255, 0.7);
-  } */
 `;
 
-const Hex = ({ s, x, y, count, val }) => {
-  const OuterRef = useRef();
+const Innerdiv = styled.div`
+  text-align: center;
+  position: absolute;
 
+  background-color: rgba(255, 255, 255, 0.4);
+
+  height: 100%;
+  width: 100%;
+  left: 50%;
+  top: 50%;
+  /* margin: 0; */
+  /* clip-path: polygon(11% 12%, 60% 0%, 100% 40%, 88% 88%, 40% 100%, 0 60%); */
+  transform: translate(-50%, -50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & svg {
+    ${(props) => {
+      return props.istarget == "true"
+        ? css`
+            height: 50%;
+            width: 50%;
+          `
+        : css`
+            height: 40%;
+            width: 40%;
+          `;
+    }};
+    transform: rotate(-45deg);
+  }
+`;
+
+const Hex = ({ s, x, y, count, val, width }) => {
+  const OuterRef = useRef();
+  const dispatch = useDispatch();
   useEffect(() => {
     let ele = document.getElementById(count);
     ele.style.top = `${y}px`;
@@ -116,32 +203,41 @@ const Hex = ({ s, x, y, count, val }) => {
       onMouseOver={(e) => {}}
     >
       <OuterDiv unselectable="on" light val={val}>
-        <Innerdiv ref={OuterRef} unselectable="on" val={val}></Innerdiv>
+        <AnimationDiv light val={val}></AnimationDiv>
+        <Innerdiv
+          ref={OuterRef}
+          unselectable="on"
+          val={val}
+          istarget={(val == TargetNode).toString()}
+        >
+          <div
+            className="Trigger"
+            style={{
+              height: "100%",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {val == StartNode ? <Start></Start> : ""}
+            {val == TargetNode ? <Target></Target> : ""}
+          </div>
+        </Innerdiv>
       </OuterDiv>
     </Container>
   );
 };
 const useEqual = (prevProps, nextProps) => {
-  // console.log(prevProps, nextProps);
-  // const state = store.getState()
-  // const graph = state.graph.graph
-
-  // const { i, j } = prevProps
-  // const { next_i, next_j } = nextProps
-  // // console.log(i,j,next_i,next_j)
-
-  // if (typeof next_i!=="undefined" && typeof  next_j!=="undefined") {
-  //   return graph[i][j]==graph[next_i][next_j]
-  // }
-  // return false
-  // console.log(prevProps?.val, nextProps?.val);
   const preval = prevProps?.val;
   const nextval = nextProps?.val;
+  const prevWidth = prevProps?.width;
+  const nextWidth = nextProps?.width;
   if (nextval == undefined) {
     console.log(preval, nextval);
     nextval = -1;
   }
-  return preval === nextval;
+  return preval === nextval && prevWidth === nextWidth;
 };
 // export default Hex;
 export default React.memo(Hex, useEqual);
