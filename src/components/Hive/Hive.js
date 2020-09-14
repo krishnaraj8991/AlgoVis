@@ -1,14 +1,26 @@
 import React, { useEffect, useState, useRef } from "react";
 import Hex from "./Hex";
 import styled, { css } from "styled-components";
-import cursorAll from "../../_Icons/Cursor/Filled/cursor-AutoScroll-All.png";
-import cursorUp from "../../_Icons/Cursor/Filled/cursor-AutoScroll-up.png";
-import cursorDown from "../../_Icons/Cursor/Filled/cursor-AutoScroll-down.png";
-import cursorLeft from "../../_Icons/Cursor/Filled/cursor-AutoScroll-left.png";
-import cursorRight from "../../_Icons/Cursor/Filled/cursor-AutoScroll-right.png";
+// import cursorAll from "../../_Icons/Cursor/Filled/cursor-AutoScroll-All.png";
+// import cursorUp from "../../_Icons/Cursor/Filled/cursor-AutoScroll-up.png";
+// import cursorDown from "../../_Icons/Cursor/Filled/cursor-AutoScroll-down.png";
+// import cursorLeft from "../../_Icons/Cursor/Filled/cursor-AutoScroll-left.png";
+// import cursorRight from "../../_Icons/Cursor/Filled/cursor-AutoScroll-right.png";
+
 import { useDispatch, useSelector } from "react-redux";
 import { SetAsWall } from "../../redux/graph/graphActions";
 import MemorisexHex from "./MemorisexHex";
+import {
+  cursorAll,
+  cursorDown,
+  cursorLeft,
+  cursorRight,
+  cursorUp,
+  cursorDownLeft,
+  cursorDownRight,
+  cursorUpLeft,
+  cursorUpRight,
+} from "../../_Icons/Cursor/Filled";
 
 // import Path from "./Path";
 // import Cube from "./Cube";
@@ -44,6 +56,14 @@ const Frame = styled.div`
       return `url(${cursorRight}), auto`;
     } else if (props.cursor == "custom-left") {
       return `url(${cursorLeft}), auto`;
+    } else if (props.cursor == "custom-up-left") {
+      return `url(${cursorUpLeft}), auto`;
+    } else if (props.cursor == "custom-up-right") {
+      return `url(${cursorUpRight}), auto`;
+    } else if (props.cursor == "custom-down-right") {
+      return `url(${cursorDownRight}), auto`;
+    } else if (props.cursor == "custom-down-left") {
+      return `url(${cursorDownLeft}), auto`;
     } else {
       return "auto";
     }
@@ -52,14 +72,36 @@ const Frame = styled.div`
   /* animation: all 1s ease; */
 `;
 export default function Hive(props) {
+  /**
+   * Hive Component displays a hexagonal grid
+   * It should be inside a relative div container
+   * and the container should set overflow property to hidden
+   * It taks no props
+   */
+
+  /*
+    Stores the Hex Divs which are shown on the screen
+    only updates when the Display size changes other wise it stays constant
+   */
   const [Hexgrid, setHexgrid] = useState([]);
+  /*
+   stores the relative postion of grid plane to the Graph
+   starts at x:0 y:0 which means top left corner of the graph
+   it is updated every tume the grid plane is shifted
+  */
   const [delta, setDelta] = useState({ x: 0, y: 0 });
   let DataSize = 10;
   const [hexsize, setSize] = useState(110);
-  let RefisAutoScroll = useRef(false);
-  let StartPos = useRef({ x: 0, y: 0 });
-  let CurrentPos = useRef({ x: 0, y: 0 });
-  let AutoScrollInterval = useRef(null);
+  let width = useRef(-1);
+
+  // Used For AutoScroll
+  let RefisAutoScroll = useRef(false); //Bool indicating autoscrolling is on or not
+  let StartPos = useRef({ x: 0, y: 0 }); //starting position of mouse pointer during autoscroll
+  let CurrentPos = useRef({ x: 0, y: 0 }); //current position of mouse pointer during autoscroll
+  let AutoScrollInterval = useRef(null); //Stores setInterval (used to periodically call scroll function)
+
+  // left mouse button down from child component reference
+  let LeftButtonDown = useRef(false);
   const [cursor, setCursor] = useState("auto");
   // let deltax = 0;
   // let deltay = 0;
@@ -78,51 +120,57 @@ export default function Hive(props) {
   }, []);
 
   useEffect(() => {
-    console.log("heavy function running");
-    let count = 0;
-    let temp = [];
-    let dtemp = [];
+    console.log(width.current, window.innerWidth);
+    var wh = window.innerWidth;
+    if (width.current < wh || width?.current == -1) {
+      width.current = window.innerWidth;
 
-    // let startx = -((hexsize / 100) * 48 + 25);
-    // let starty = -140;
-    let startx = 80;
-    let starty = 80;
-    var w = window.innerWidth;
-    var h = window.innerHeight;
-    console.log(w, h);
-    // jLimit = parseInt(w / (((hexsize - 90) / 60) * 48 + 25) + 4);
-    // iLimit = parseInt(h / (((hexsize - 90) / 60) * 46 + 25) + 4);
-    jLimit = w / 40;
-    iLimit = h / 45;
-    for (let i = 0; i < iLimit; i++) {
-      let tempup = [];
-      for (let j = 0; j < jLimit; j++) {
-        count += 1;
-        tempup = [
-          ...tempup,
-          [
-            count,
-            hexsize,
-            i % 2 === 0
-              ? startx + j * (((hexsize - 70) / 60) * 48 + 25)
-              : startx +
-                j * (((hexsize - 70) / 60) * 48 + 25) +
-                (((hexsize - 70) / 60) * 25 + 12), //12
-            starty, //((hexsize - 70) / 60) * 46 + 2,
-            [i, j],
-            // i % 2 === 1 ? count + jLimit : count,
-          ],
-        ];
+      console.log("heavy function running");
+      let count = 0;
+      let temp = [];
+      let dtemp = [];
+
+      // let startx = -((hexsize / 100) * 48 + 25);
+      // let starty = -140;
+      let startx = 80;
+      let starty = 80;
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      console.log(w, h);
+      // jLimit = parseInt(w / (((hexsize - 90) / 60) * 48 + 25) + 4);
+      // iLimit = parseInt(h / (((hexsize - 90) / 60) * 46 + 25) + 4);
+      jLimit = w / 40;
+      iLimit = h / 45;
+      for (let i = 0; i < iLimit; i++) {
+        let tempup = [];
+        for (let j = 0; j < jLimit; j++) {
+          count += 1;
+          tempup = [
+            ...tempup,
+            [
+              count,
+              hexsize,
+              i % 2 === 0
+                ? startx + j * (((hexsize - 70) / 60) * 48 + 25)
+                : startx +
+                  j * (((hexsize - 70) / 60) * 48 + 25) +
+                  (((hexsize - 70) / 60) * 25 + 12), //12
+              starty, //((hexsize - 70) / 60) * 46 + 2,
+              [i, j],
+              // i % 2 === 1 ? count + jLimit : count,
+            ],
+          ];
+        }
+
+        temp = [...temp, ...tempup];
+        // count += jLimit;
+        starty += ((hexsize - 70) / 60) * 46 + 25; //25; //((hexsize - 70) / 60) * 48 + 94; //142
       }
+      // console.log(iLimit, jLimit, dtemp);
+      console.log(temp.length);
 
-      temp = [...temp, ...tempup];
-      // count += jLimit;
-      starty += ((hexsize - 70) / 60) * 46 + 25; //25; //((hexsize - 70) / 60) * 48 + 94; //142
+      setHexgrid(temp);
     }
-    // console.log(iLimit, jLimit, dtemp);
-    console.log(temp.length);
-
-    setHexgrid(temp);
   }, [hexsize, window.innerWidth]);
 
   const frameScroll = (deltax, deltay) => {
@@ -191,7 +239,27 @@ export default function Hive(props) {
     let deltax = currentx - StartPos.x;
     let deltay = currenty - StartPos.y;
     // console.log(deltax, deltay);
-    if (Math.abs(deltax) > 20 || Math.abs(deltay) > 20) {
+    if (Math.abs(deltax) > 20 && Math.abs(deltay) > 20) {
+      if (deltax > 0 && deltay < 0) {
+        if (cursor != "custom-up-right") {
+          setCursor("custom-up-right");
+        }
+      } else if (deltax < 0 && deltay < 0) {
+        if (cursor != "custom-up-left") {
+          setCursor("custom-up-left");
+        }
+      }
+      if (deltax > 0 && deltay > 0) {
+        if (cursor != "custom-down-right") {
+          setCursor("custom-down-right");
+        }
+      } else if (deltax < 0 && deltay > 0) {
+        if (cursor != "custom-down-left") {
+          setCursor("custom-down-left");
+        }
+      }
+      frameScroll(deltax / 5, deltay / 5);
+    } else if (Math.abs(deltax) > 20 || Math.abs(deltay) > 20) {
       if (Math.abs(deltax) < Math.abs(deltay)) {
         if (deltay > 0) {
           if (cursor != "custom-down") {
@@ -213,12 +281,12 @@ export default function Hive(props) {
           }
         }
       }
+      frameScroll(deltax / 5, deltay / 5);
     } else {
       if (cursor != "custom") {
         setCursor("custom");
       }
     }
-    frameScroll(deltax / 5, deltay / 5);
     // console.log(e);
   };
   const scroll = (e) => {
@@ -233,6 +301,10 @@ export default function Hive(props) {
   };
 
   const logMousedown = (e) => {
+    if (e.button == 0) {
+      LeftButtonDown.current = true;
+      // console.log("left click");
+    }
     if (e.buttons == 4) {
       if (RefisAutoScroll == undefined) {
         RefisAutoScroll = false;
@@ -260,6 +332,7 @@ export default function Hive(props) {
     // }
   };
   const logmouseUp = () => {
+    LeftButtonDown.current = false;
     if (RefisAutoScroll) {
       setCursor("auto");
       RefisAutoScroll = false;
@@ -313,13 +386,15 @@ export default function Hive(props) {
           {/* {Hexgrid.map((hex) => hex)} */}
           {Hexgrid.map((hex, idx) => (
             <MemorisexHex
-              key={hex[0]}
-              count={hex[0]}
+              key={`${hex[4][0]},${hex[4][1]}`}
+              count={`${hex[4][0]},${hex[4][1]}`}
               s={hex[1] - 40}
               x={hex[2]}
               y={hex[3]}
               i={(hex[4][0] + delta.y) % DataSize}
               j={(hex[4][1] + delta.x) % DataSize}
+              width={width.current}
+              LeftButtonDown={LeftButtonDown}
             />
           ))}
         </Frame>
