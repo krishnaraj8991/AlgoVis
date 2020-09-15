@@ -102,6 +102,7 @@ export default function Hive(props) {
 
   // left mouse button down from child component reference
   let LeftButtonDown = useRef(false);
+  let moving = useSelector((state) => state.movingTarget || state.movingStart);
   const [cursor, setCursor] = useState("auto");
   // let deltax = 0;
   // let deltay = 0;
@@ -395,6 +396,7 @@ export default function Hive(props) {
               j={(hex[4][1] + delta.x) % DataSize}
               width={width.current}
               LeftButtonDown={LeftButtonDown}
+              moving={moving}
             />
           ))}
         </Frame>

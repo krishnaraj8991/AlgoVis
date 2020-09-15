@@ -160,6 +160,9 @@ const Innerdiv = styled.div`
   justify-content: center;
 
   & svg {
+    height: 0%;
+    width: 0%;
+    transition: height 2s ease-out, width 2s ease-out;
     ${(props) => {
       return props.istarget == "true"
         ? css`
@@ -213,12 +216,14 @@ const Hex = ({ s, x, y, count, val, width }) => {
           <div
             className="Trigger"
             style={{
+              // backgroundColor: "black",
               height: "100%",
               width: "100%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
+            onMouseDown={() => {}}
           >
             {val == StartNode ? <Start></Start> : ""}
             {val == TargetNode ? <Target></Target> : ""}

@@ -1,3 +1,4 @@
+import { MoveingStart, MoveStartTo } from "./graphActions";
 import {
   BlankNode,
   StartNode,
@@ -6,7 +7,15 @@ import {
   WallTransition,
 } from "./graphStates";
 
-import { Fix_AS_WALL, Remove_Wall, Set_AS_WALL } from "./graphTypes";
+import {
+  Fix_AS_WALL,
+  Move_Start_To,
+  Move_Target_To,
+  Moving_Start,
+  Moving_Target,
+  Remove_Wall,
+  Set_AS_WALL,
+} from "./graphTypes";
 
 let DataSize = 100;
 console.log("Initializing data", DataSize);
@@ -33,6 +42,7 @@ const initialState = {
   movingTarget: false,
   start: { i: 5, j: 5 },
   target: { i: 5, j: 10 },
+  boundaryWalls: true,
 };
 
 const graphReducer = (state = initialState, action) => {
@@ -69,6 +79,59 @@ const graphReducer = (state = initialState, action) => {
       };
     }
 
+    case Moving_Start: {
+      return {
+        ...state,
+        movingStart: action.payload,
+      };
+    }
+    case Moving_Target: {
+      return {
+        ...state,
+        movingTarget: action.payload,
+      };
+    }
+    case Move_Start_To: {
+      let graph = state.graph;
+      const { i: prevI, j: prevJ } = state.start;
+      const { i, j } = action.payload;
+      const boundaryWalls = state.boundaryWalls;
+      if (graph[i][j] != TargetNode) {
+        if (boundaryWalls && (prevI == 0 || prevJ == 0)) {
+          graph[prevI][prevJ] = Wall;
+        } else {
+          graph[prevI][prevJ] = BlankNode;
+        }
+        graph[i][j] = StartNode;
+        return {
+          ...state,
+          graph,
+          start: { i, j },
+        };
+      }
+      return state;
+    }
+    case Move_Target_To: {
+      let graph = state.graph;
+      const { i: prevI, j: prevJ } = state.target;
+      const { i, j } = action.payload;
+      const { i: startI, j: startJ } = state.start;
+      const boundaryWalls = state.boundaryWalls;
+      if (graph[i][j] != StartNode) {
+        if (boundaryWalls && (prevI == 0 || prevJ == 0)) {
+          graph[prevI][prevJ] = Wall;
+        } else {
+          graph[prevI][prevJ] = BlankNode;
+        }
+        graph[i][j] = TargetNode;
+        return {
+          ...state,
+          graph,
+          target: { i, j },
+        };
+      }
+      return state;
+    }
     default:
       return state;
   }
