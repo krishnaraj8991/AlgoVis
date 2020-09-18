@@ -6,6 +6,7 @@ import {
   Move_Target_To,
   Moving_Start,
   Moving_Target,
+  Set_Boundarys,
 } from "./graphTypes";
 
 export const SetAsWall = ({ i, j }) => {
@@ -51,5 +52,11 @@ export const MoveingStart = (value) => {
   return {
     type: Moving_Start,
     payload: value,
+  };
+};
+
+export const SetBoundarys = (value) => {
+  return {
+    type: Set_Boundarys,
   };
 };

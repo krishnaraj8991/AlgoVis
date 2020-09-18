@@ -26,6 +26,8 @@ function MemorisexHex(props) {
     movingStart: state.graph.movingStart,
     movingTarget: state.graph.movingTarget,
   }));
+
+  const animation = useSelector((state) => state.theme.animation);
   const dispatch = useDispatch();
   const EventHandler = () => {
     if (movingStart) {
@@ -35,7 +37,14 @@ function MemorisexHex(props) {
       dispatch(MoveTargetTo({ i, j }));
     } else {
       if (val == BlankNode) {
-        dispatch(FixAsWall({ i, j }));
+        if (animation) {
+          dispatch(SetAsWall({ i, j }));
+          setTimeout(() => {
+            dispatch(FixAsWall({ i, j }));
+          }, 350);
+        } else {
+          dispatch(FixAsWall({ i, j }));
+        }
       } else if (val == WallTransition || val == Wall) {
         dispatch(RemoveWall({ i, j }));
       }

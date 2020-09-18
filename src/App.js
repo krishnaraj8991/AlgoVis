@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import "./App.css";
 import NevBar from "./NevBars/NevBar";
 import NevItem from "./NevBars/NevItem";
-import { ReactComponent as CaretDown } from "./_Icons/caret-down.svg";
 
 import DropdownMenu from "./NevBars/DropdownMenu";
 import Hive from "./components/Hive/Hive";
@@ -10,9 +9,10 @@ import styled, { ThemeProvider, css } from "styled-components";
 import TheamSwitcher from "./components/TheamSwitcher";
 import Switch from "./components/Switch";
 // Store
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import store from "./redux/store";
 import PlayPause from "./NevBars/PlayPause";
+import SideMenu from "./NevBars/SideMenu";
 
 const Container = styled.div`
   position: relative;
@@ -43,32 +43,16 @@ const Space = styled.div`
 `;
 const App = () => {
   const [lightTheme, setLighttheme] = useState(false);
-  const dropdown = [
-    { key: 1, switch: true, value: "Boundary" },
-    { key: 2, switch: true, value: "Animation" },
-    { key: 3, switch: true, value: "Something" },
-  ];
+
   const algos = [
     {
-      key: 1,
       value: "A* Search",
+      onClick: () => {},
     },
-    {
-      key: 2,
-      value: "Dijkstra's Algorithm",
-    },
-    {
-      key: 3,
-      value: "Greedy Best-first Search",
-    },
-    {
-      key: 4,
-      value: "Breadth-first Search",
-    },
-    {
-      key: 5,
-      value: "Depth-first Search",
-    },
+    { value: "Dijkstra's Algorithm", onClick: () => {} },
+    { value: "Greedy Best-first Search", onClick: () => {} },
+    { value: "Breadth-first Search", onClick: () => {} },
+    { value: "Depth-first Search", onClick: () => {} },
   ];
   const theme = {
     light: lightTheme,
@@ -116,9 +100,7 @@ const App = () => {
                 />
               </div>
               <div id="cl4">
-                <NevItem icon={<CaretDown />}>
-                  <DropdownMenu right items={dropdown}></DropdownMenu>
-                </NevItem>
+                <SideMenu></SideMenu>
               </div>
             </NevBar>
 

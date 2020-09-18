@@ -1,4 +1,3 @@
-import { MoveingStart, MoveStartTo } from "./graphActions";
 import {
   BlankNode,
   StartNode,
@@ -15,6 +14,7 @@ import {
   Moving_Target,
   Remove_Wall,
   Set_AS_WALL,
+  Set_Boundarys,
 } from "./graphTypes";
 
 let DataSize = 40;
@@ -131,6 +131,20 @@ const graphReducer = (state = initialState, action) => {
         };
       }
       return state;
+    }
+
+    case Set_Boundarys: {
+      let graph = state.graph;
+      const boundary = state.boundaryWalls;
+      for (let i = 0; i < state.size; i++) {
+        graph[0][i] = boundary ? BlankNode : Wall;
+        graph[i][0] = boundary ? BlankNode : Wall;
+      }
+      return {
+        ...state,
+        graph: graph,
+        boundaryWalls: !state.boundaryWalls,
+      };
     }
     default:
       return state;

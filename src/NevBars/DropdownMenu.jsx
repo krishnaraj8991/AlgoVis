@@ -65,10 +65,11 @@ const IconButton = styled.div`
 `;
 
 function DropdownMenu(props) {
-  console.log(props.items);
+  // console.log(props.items);
   function DropdownItems(props) {
     return (
       <DropdownItem
+        key={props.value + " item"}
         onClick={() => {
           !props.switch && props.onClick();
         }}
@@ -76,34 +77,14 @@ function DropdownMenu(props) {
         {props.leftIcon && <IconButton>{props.leftIcon}</IconButton>}
         {props.value && <H2>{props.value}</H2>}
         {props.rightIcon && <IconButton>{props.rightIcon}</IconButton>}
-        {props.switch ? (
-          <Switchs
-            on={"true"}
-            onclick={(val) => {
-              // props.onClick(on);
-              console.log(props.value, ":-", val);
-            }}
-          />
-        ) : (
-          ""
-        )}
+        {props.switch && <Switchs key={props.value + " switch"} {...props} />}
       </DropdownItem>
     );
   }
   return (
     <Dropdown right={props.right}>
       {props.items.map((item) => {
-        return (
-          <DropdownItems
-            key={item.key}
-            leftIcon={item.icon}
-            switch={item.switch}
-            onClick={() => {
-              console.log(item.value);
-            }}
-            value={item.value}
-          ></DropdownItems>
-        );
+        return <DropdownItems key={item.value} {...item}></DropdownItems>;
       })}
     </Dropdown>
   );

@@ -1,4 +1,4 @@
-import React, { createElement, useEffect, useRef } from "react";
+import React, { createElement, useEffect, useRef, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
 import { ReactComponent as Start } from "../../_Icons/start.svg";
@@ -49,29 +49,34 @@ const OuterDiv = styled.div`
   }
 `;
 
-// background-color: ${(props) => {
-//   if (props.val == Wall || props.val == WallTransition) {
-//     return "Black";
-//   }
-//   return "transparent";
-// }};
 const AnimationDiv = styled.div`
-  position: absolute;
+  /* position: absolute; */
   text-align: center;
   background-color: black;
   height: 100%;
   width: 100%;
-  left: 50%;
+  /* left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%); */
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
+  transform: scale(0);
+  clip-path: polygon(12% 12%, 60% 0%, 100% 40%, 88% 88%, 40% 100%, 0 60%);
   & p {
     transform: rotate(-45deg);
   }
   &.Wall {
+    /* opacity: 1; */
+    /* transition: transform 250ms ease-out; */
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  &.WallTransition {
+    /* opacity: 1; */
+    transition: transform 200ms ease-out;
+    transform: scale(1.2);
     opacity: 1;
   }
 `;
@@ -111,31 +116,22 @@ const Innerdiv = styled.div`
   justify-content: center;
 
   &.target svg {
-    animation: ${target} 350ms ease-out forwards;
+    height: 50%;
+    width: 50%;
+    /* animation: ${target} 350ms ease-out forwards; */
     transform: rotate(-45deg);
   }
   &.start svg {
-    animation: ${start} 350ms ease-out forwards;
+    height: 40%;
+    width: 40%;
+    /* animation: ${start} 350ms ease-out forwards; */
     transform: rotate(-45deg);
   }
 `;
-// ${(props) => {
-//   return props.istarget == "true"
-//     ? css`
-//         height: 50%;
-//         width: 50%;
-//       `
-//     : css`
-//         height: 40%;
-//         width: 40%;
-//       `;
-// }};
-
 const Hex = ({ s, x, y, count, val, width }) => {
   const AnimationRef = useRef();
   const light = useSelector((state) => state.theme.light);
   const dispatch = useDispatch();
-  let classTag = "";
   useEffect(() => {
     let ele = document.getElementById(count).style;
     ele.height = `${s}px`;
@@ -143,32 +139,27 @@ const Hex = ({ s, x, y, count, val, width }) => {
     ele.top = `${y}px`;
     ele.left = `${x}px`;
   }, []);
-  useEffect(() => {
-    classTag = light ? "light " : "dark ";
-    if (val == WallTransition) {
-      classTag += "walltransition";
-    } else if (val == Wall) {
-      classTag += "wall";
-    }
-  }, [val]);
-  useEffect(() => {
-    classTag = light ? "light " : "dark ";
-    // ele.style.top = `${y}px`;
-    // ele.style.left = `${x}px`;
-    // ele.style.backgroundColor = light ? "#ff6c00" : "#263859";
-  }, [light]);
   return (
     <Container
       // s={s}
       unselectable="on"
       // x={x}
+
       // y={y}
       id={count}
       className={light ? "light " : "dark "}
     >
       <OuterDiv unselectable="on">
         <AnimationDiv
-          className={val == Wall ? "Wall" : ""}
+          className={
+            val == BlankNode
+              ? ""
+              : val == WallTransition
+              ? "WallTransition"
+              : val == Wall
+              ? "Wall"
+              : ""
+          }
           ref={AnimationRef}
           light
           val={val}
@@ -177,7 +168,11 @@ const Hex = ({ s, x, y, count, val, width }) => {
           unselectable="on"
           val={val}
           className={
-            val != BlankNode ? (val == TargetNode ? "target" : "start") : ""
+            val != BlankNode && val != Wall
+              ? val == TargetNode
+                ? "target"
+                : "start"
+              : ""
           }
         >
           <div
