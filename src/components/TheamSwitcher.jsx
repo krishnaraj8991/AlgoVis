@@ -3,55 +3,66 @@ import styled, { css } from "styled-components";
 import { ReactComponent as Moon } from "../_Icons/crescent-moon-svgrepo-com.svg";
 import { ReactComponent as Sun } from "../_Icons/sun-svgrepo-com.svg";
 import { useRef } from "react";
+import { Flip } from "../redux/themeState/themeActions";
+import { useDispatch, useSelector } from "react-redux";
 
 const Sheet = styled.div`
-  height: 50px;
-  width: 50px;
+  /* height: 50px;
+  width: 50px; */
+  margin-right: 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 const Container = styled.div`
-  /* position: relatives; */
-  height: 50%;
-  width: 100%;
+  position: relative;
+  height: 25px;
+  width: 50px;
   border-radius: 20px;
-  /* background-color: ${(props) =>
-    !props.theme.light ? css`silver` : css`rgba(255, 137, 26, 1)`}; */
-
-  background-color: ${(props) =>
-    !props.theme.light
-      ? props.theme.DarkTheme.color
-      : props.theme.LightTheme.color};
-
+  background-color: #263859;
   display: flex;
   align-items: center;
-  /* justify-content: ${(props) =>
-    props.on == "true" ? css`flex-start` : css`flex-end`}; */
   transition: all 250ms ease-in;
+  overflow: hidden;
 `;
 const Switch = styled.div`
-  position: relative;
+  position: absolute;
   height: 100%;
   width: 50%;
   border-radius: 50%;
   background-color: gray;
-  /* transition: all 250ms ease-out; */
   transition: transform 300ms ease-out;
   box-shadow: 1px 1px 8px 2px #263859;
   transform: ${(props) =>
-    props.theme.light ? css`translateX(0%)` : css`translateX(100%)`};
+    props.on == "true" ? css`translateX(0%)` : css`translateX(100%)`};
+`;
+const OnPlane = styled.div`
+  height: 100%;
+  width: 100%;
+  border-radius: 20px;
+  background-color: #ff6c00;
+  transition: transform 300ms ease-out;
+  transform: ${(props) =>
+    !(props.on == "true") ? css`translateX(50%)` : css`translateX(0%)`};
 `;
 function TheamSwitcher(props) {
   const switchref = useRef(null);
+  const dispatch = useDispatch();
+  const on = useSelector((state) => state.theme.light);
   // useEffect(() => {
   //   let switchstyle = switchref.current.style;
   // }, [props.on]);
   return (
     <Sheet>
-      <Container onClick={props.clicked}>
-        <Switch ref={switchref} on={props.on}>
-          {props.on == "true" ? <Sun /> : <Moon />}
+      <Container
+        onClick={() => {
+          dispatch(Flip());
+        }}
+        on={on.toString()}
+      >
+        <OnPlane on={on.toString()} />
+        <Switch ref={switchref} on={on.toString()}>
+          {on ? <Sun /> : <Moon />}
         </Switch>
       </Container>
     </Sheet>

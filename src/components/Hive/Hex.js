@@ -5,53 +5,34 @@ import { ReactComponent as Start } from "../../_Icons/start.svg";
 import { ReactComponent as Target } from "../../_Icons/target.svg";
 
 import {
+  BlankNode,
   StartNode,
   TargetNode,
   Wall,
   WallTransition,
 } from "../../redux/graph/graphStates";
-// const OuterDiv = styled.div`
-//   position: absolute;
-//   background-color: rgba(255, 137, 26, 1);
-//   height: ${(props) => props.s}px;
-//   width: ${(props) => props.s}px;
-//   left: ${(props) => props.x}px;
-//   top: ${(props) => props.y}px;
-//   clip-path: polygon(12% 12%, 60% 0%, 100% 40%, 88% 88%, 40% 100%, 0 60%);
-//   transform: translate(-50%, -50%) rotate(45deg);
-// `;
+import { FixAsWall } from "../../redux/graph/graphActions";
+
 const Container = styled.div`
   position: absolute;
-  /* background-color: #6b778d; */
-  background-color: ${(props) => {
-    return props.theme.light
-      ? props.theme.LightTheme.color
-      : props.theme.DarkTheme.color;
-  }};
-  /* transition: background-color 250ms ease-out; */
-  /* background-color: silver; */
-
-  height: ${(props) => props.s}px;
-  width: ${(props) => props.s}px;
-  left: 25%;
-  top: 25%;
+  background-color: #ff6c00;
+  height: 0px;
+  width: 0px;
+  left: 0px;
+  top: 0px;
   clip-path: polygon(12% 12%, 60% 0%, 100% 40%, 88% 88%, 40% 100%, 0 60%);
   transform: translate(-50%, -50%) rotate(45deg);
   user-select: none;
-  /* transition: all 1s ease-in, height 1s ease-out, width 1s ease-out; */
+  transition: all 250ms ease-in;
   padding: 0;
+  &.dark {
+    background-color: #263859;
+  }
 `;
-
 const OuterDiv = styled.div`
   text-align: center;
   position: absolute;
 
-  background-color: ${(props) => {
-    return props.theme.light
-      ? props.theme.LightTheme.color
-      : props.theme.DarkTheme.color;
-  }};
-  /* background-color: rgba(255, 255, 255, 1); */
   height: 90%;
   width: 90%;
   left: 50%;
@@ -68,79 +49,49 @@ const OuterDiv = styled.div`
   }
 `;
 
-const SetWAll = (props) => keyframes`
-  0%{
-    height:0%;
-    width:0%;
-    border-radius:50%;
-    /* background-color:lime; */
-    /* background-color:black; */
-
-    background-color:${
-      props.theme.light
-        ? props.theme.LightTheme.transitionColor
-        : props.theme.DarkTheme.transitionColor
-    };
-  }
-  80%{
-
-    /* background-color:lime; */
-    background-color:${
-      props.theme.light
-        ? props.theme.LightTheme.transitionColor
-        : props.theme.DarkTheme.transitionColor
-    };
-
-  }
-  80%{
-    border-radius:50%;
-  }
-  100%{
-    height:100%;
-    width:100%;
-    border-radius:0%;
-
-    /* background-color:black; */
-  }
-`;
-
+// background-color: ${(props) => {
+//   if (props.val == Wall || props.val == WallTransition) {
+//     return "Black";
+//   }
+//   return "transparent";
+// }};
 const AnimationDiv = styled.div`
-  text-align: center;
   position: absolute;
-  ${(props) => {
-    if (props.val == WallTransition) {
-      return css`
-        /* transition: background-color 250ms ease-out; */
-        animation: ${(props) => SetWAll(props)} 250ms ease-in-out forwards;
-      `;
-    }
-  }}
-  background-color: ${(props) => {
-    if (props.val == Wall || props.val == WallTransition) {
-      return "Black";
-    }
-
-    return props.theme.light
-      ? props.theme.LightTheme.color
-      : props.theme.DarkTheme.color;
-  }};
-  /* background-color: rgba(255, 255, 255, 1); */
+  text-align: center;
+  background-color: black;
   height: 100%;
   width: 100%;
   left: 50%;
   top: 50%;
-  /* border-radius: 50%; */
-  /* margin: 0; */
-  /* clip-path: polygon(11% 12%, 60% 0%, 100% 40%, 88% 88%, 40% 100%, 0 60%); */
   transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0;
   & p {
     transform: rotate(-45deg);
   }
+  &.Wall {
+    opacity: 1;
+  }
 `;
 
+const target = keyframes`
+0%{height: 10%;
+    width: 10%;}
+
+100%{
+  height: 50%;
+    width: 50%;
+}`;
+const start = keyframes`
+0%{height: 10%;
+    width: 10%;}
+
+100%{
+  height: 40%;
+    width: 40%;
+}`;
 const Innerdiv = styled.div`
   text-align: center;
   position: absolute;
@@ -159,59 +110,75 @@ const Innerdiv = styled.div`
   align-items: center;
   justify-content: center;
 
-  & svg {
-    height: 0%;
-    width: 0%;
-    transition: height 2s ease-out, width 2s ease-out;
-    ${(props) => {
-      return props.istarget == "true"
-        ? css`
-            height: 50%;
-            width: 50%;
-          `
-        : css`
-            height: 40%;
-            width: 40%;
-          `;
-    }};
+  &.target svg {
+    animation: ${target} 350ms ease-out forwards;
+    transform: rotate(-45deg);
+  }
+  &.start svg {
+    animation: ${start} 350ms ease-out forwards;
     transform: rotate(-45deg);
   }
 `;
+// ${(props) => {
+//   return props.istarget == "true"
+//     ? css`
+//         height: 50%;
+//         width: 50%;
+//       `
+//     : css`
+//         height: 40%;
+//         width: 40%;
+//       `;
+// }};
 
 const Hex = ({ s, x, y, count, val, width }) => {
-  const OuterRef = useRef();
+  const AnimationRef = useRef();
+  const light = useSelector((state) => state.theme.light);
   const dispatch = useDispatch();
+  let classTag = "";
   useEffect(() => {
-    let ele = document.getElementById(count);
-    ele.style.top = `${y}px`;
-    ele.style.left = `${x}px`;
-  }, [y, x]);
-  const logMousedown = (e) => {
-    if (e.buttons == 1) {
-    }
-  };
-  useEffect(() => {
-    OuterRef.current.addEventListener("mouseover", logMousedown);
+    let ele = document.getElementById(count).style;
+    ele.height = `${s}px`;
+    ele.width = `${s}px`;
+    ele.top = `${y}px`;
+    ele.left = `${x}px`;
   }, []);
-
+  useEffect(() => {
+    classTag = light ? "light " : "dark ";
+    if (val == WallTransition) {
+      classTag += "walltransition";
+    } else if (val == Wall) {
+      classTag += "wall";
+    }
+  }, [val]);
+  useEffect(() => {
+    classTag = light ? "light " : "dark ";
+    // ele.style.top = `${y}px`;
+    // ele.style.left = `${x}px`;
+    // ele.style.backgroundColor = light ? "#ff6c00" : "#263859";
+  }, [light]);
   return (
     <Container
-      s={s}
-      x={x}
-      y={y}
+      // s={s}
       unselectable="on"
+      // x={x}
+      // y={y}
       id={count}
-      light
-      val={val}
-      onMouseOver={(e) => {}}
+      className={light ? "light " : "dark "}
     >
-      <OuterDiv unselectable="on" light val={val}>
-        <AnimationDiv light val={val}></AnimationDiv>
+      <OuterDiv unselectable="on">
+        <AnimationDiv
+          className={val == Wall ? "Wall" : ""}
+          ref={AnimationRef}
+          light
+          val={val}
+        ></AnimationDiv>
         <Innerdiv
-          ref={OuterRef}
           unselectable="on"
           val={val}
-          istarget={(val == TargetNode).toString()}
+          className={
+            val != BlankNode ? (val == TargetNode ? "target" : "start") : ""
+          }
         >
           <div
             className="Trigger"
@@ -223,7 +190,6 @@ const Hex = ({ s, x, y, count, val, width }) => {
               alignItems: "center",
               justifyContent: "center",
             }}
-            onMouseDown={() => {}}
           >
             {val == StartNode ? <Start></Start> : ""}
             {val == TargetNode ? <Target></Target> : ""}

@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
-import Hex from "./Hex";
+import React, { useEffect, useState, useRef, Suspense, lazy } from "react";
+// import Hex from "./Hex";
 import styled, { css } from "styled-components";
 // import cursorAll from "../../_Icons/Cursor/Filled/cursor-AutoScroll-All.png";
 // import cursorUp from "../../_Icons/Cursor/Filled/cursor-AutoScroll-up.png";
@@ -9,7 +9,8 @@ import styled, { css } from "styled-components";
 
 import { useDispatch, useSelector } from "react-redux";
 import { SetAsWall } from "../../redux/graph/graphActions";
-import MemorisexHex from "./MemorisexHex";
+// import MemorisexHex from "./MemorisexHex";
+
 import {
   cursorAll,
   cursorDown,
@@ -21,6 +22,8 @@ import {
   cursorUpLeft,
   cursorUpRight,
 } from "../../_Icons/Cursor/Filled";
+import Loading from "../Loading";
+const MemorisexHex = React.lazy(() => import("./MemorisexHex"));
 
 // import Path from "./Path";
 // import Cube from "./Cube";
@@ -35,7 +38,8 @@ const Base = {
   // overflow: "hidden",
   /* // overflowX: "hidden",
   // overflowY: "hidden", */
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  backgroundColor: "transparent",
+  // backgroundColor: "rgba(0, 0, 0, 0.5)",
 };
 const Frame = styled.div`
   position: absolute;
@@ -44,7 +48,9 @@ const Frame = styled.div`
   left: ${(props) => props.left};
   top: ${(props) => props.top};
   overflow: hidden;
-  background-color: rgba(0, 0, 0, 0);
+  background-color: transparent;
+  transform: translate(0px, 0px);
+  /* -webkit-transform: translateZ(0); */
   cursor: ${(props) => {
     if (props.cursor == "custom") {
       return `url(${cursorAll}), auto`;
@@ -71,6 +77,46 @@ const Frame = styled.div`
 
   /* animation: all 1s ease; */
 `;
+
+function getTranslateValues(element) {
+  const style = window.getComputedStyle(element);
+  const matrix = style["transform"] || style.mozTransform;
+
+  // No transform property. Simply return 0 values.
+  if (matrix === "none") {
+    return {
+      x: 0,
+      y: 0,
+      z: 0,
+    };
+  }
+
+  // Can either be 2d or 3d transform
+  const matrixType = matrix.includes("3d") ? "3d" : "2d";
+  const matrixValues = matrix.match(/matrix.*\((.+)\)/)[1].split(", ");
+
+  // 2d matrices have 6 values
+  // Last 2 values are X and Y.
+  // 2d matrices does not have Z value.
+  if (matrixType === "2d") {
+    return {
+      x: matrixValues[4],
+      y: matrixValues[5],
+      z: 0,
+    };
+  }
+
+  // 3d matrices have 16 values
+  // The 13th, 14th, and 15th values are X, Y, and Z
+  if (matrixType === "3d") {
+    return {
+      x: matrixValues[12],
+      y: matrixValues[13],
+      z: matrixValues[14],
+    };
+  }
+}
+
 export default function Hive(props) {
   /**
    * Hive Component displays a hexagonal grid
@@ -102,7 +148,7 @@ export default function Hive(props) {
 
   // left mouse button down from child component reference
   let LeftButtonDown = useRef(false);
-  let moving = useSelector((state) => state.movingTarget || state.movingStart);
+
   const [cursor, setCursor] = useState("auto");
   // let deltax = 0;
   // let deltay = 0;
@@ -174,45 +220,56 @@ export default function Hive(props) {
     }
   }, [hexsize, window.innerWidth]);
 
+  // Frame Scroll with Transform translate
   const frameScroll = (deltax, deltay) => {
     let fram = document.getElementById("hive");
     if (fram) {
-      if (!fram.style.top || !fram.style.left) {
-        fram.style.top = `0px`;
-        fram.style.left = `0px`;
+      const frame = fram;
+      if (!fram.style.transform) {
+        fram.style.transform = "translate(0px,0px)";
       }
-      let currnety = parseInt(fram.style.top);
-      let currentx = parseInt(fram.style.left);
+      // let currnety = parseInt(fram.style.top);
+      // let currentx = parseInt(fram.style.left);
+      const { x: currentx, y: currnety, z } = getTranslateValues(frame);
+      // console.log(currentx, currnety);
       let posy = currnety - deltay;
       let posx = currentx - deltax;
-
-      fram.style.top = `${posy}px`;
-      fram.style.left = `${posx}px`;
+      // console.log(posx, posy, fram.style.transform.match(/[\d\.]+|\D+/g));
+      fram.style.transform = `translate(${posx}px,${posy}px)`;
+      // fram.style.top = `${posy}px`;
+      // fram.style.left = `${posx}px`;
 
       if (posy > (((hexsize - 70) / 60) * 46 + 25) * 2) {
         // fram.style.top = `0px`;
-
+        let multiple = parseInt(posy / ((((hexsize - 70) / 60) * 46 + 25) * 2));
         posy = posy % ((((hexsize - 70) / 60) * 46 + 25) * 2);
-        fram.style.top = `${posy}px`;
+
+        fram.style.transform = `translate(${posx}px,${posy}px)`;
+        // fram.style.top = `${posy}px`;
         setDelta((prev) => ({
           ...prev,
-          y: prev.y + ((DataSize - 2) % (DataSize * 3)),
+          y: prev.y + ((multiple * (DataSize - 2)) % (DataSize * 3)),
         }));
       }
       if (posy < -((((hexsize - 70) / 60) * 46 + 25) * 2)) {
         // fram.style.top = `0px`;
         posy = -posy;
+        let multiple = parseInt(posy / ((((hexsize - 70) / 60) * 46 + 25) * 2));
         posy = posy % ((((hexsize - 70) / 60) * 46 + 25) * 2);
         posy = -posy;
-        fram.style.top = `${posy}px`;
-        setDelta((prev) => ({ ...prev, y: prev.y + 2 }));
+
+        fram.style.transform = `translate(${posx}px,${posy}px)`;
+        // fram.style.top = `${posy}px`;
+        setDelta((prev) => ({ ...prev, y: prev.y + multiple * 2 }));
       }
       if (posx > ((hexsize - 100) / 30) * 23 + 50) {
         // fram.style.left = `0px`;
         let multiple = parseInt(posx / (((hexsize - 100) / 30) * 23 + 50));
 
         posx = posx % (((hexsize - 100) / 30) * 23 + 50);
-        fram.style.left = `${posx}px`;
+
+        fram.style.transform = `translate(${posx}px,${posy}px)`;
+        // fram.style.left = `${posx}px`;
         setDelta((prev) => ({
           ...prev,
           x: prev.x + ((multiple * (DataSize - 1)) % (DataSize * 3)),
@@ -224,22 +281,85 @@ export default function Hive(props) {
         let multiple = parseInt(posx / (((hexsize - 100) / 30) * 23 + 50));
         posx = posx % (((hexsize - 100) / 30) * 23 + 50);
         posx = -posx;
-        fram.style.left = `${posx}px`;
+
+        fram.style.transform = `translate(${posx}px,${posy}px)`;
+        // fram.style.left = `${posx}px`;
         setDelta((prev) => ({ ...prev, x: prev.x + multiple * 1 }));
         // fram.style.left = `0px`;
       }
     }
   };
 
-  // Remaining to implement
+  /* Frame scroll with absolute positions */
+  // const frameScroll = (deltax, deltay) => {
+  //   let fram = document.getElementById("hive");
+  //   if (fram) {
+  //     if (!fram.style.top || !fram.style.left) {
+  //       fram.style.top = `0px`;
+  //       fram.style.left = `0px`;
+  //     }
+  //     let currnety = parseInt(fram.style.top);
+  //     let currentx = parseInt(fram.style.left);
+  //     let posy = currnety - deltay;
+  //     let posx = currentx - deltax;
+
+  //     fram.style.top = `${posy}px`;
+  //     fram.style.left = `${posx}px`;
+
+  //     if (posy > (((hexsize - 70) / 60) * 46 + 25) * 2) {
+  //       // fram.style.top = `0px`;
+
+  //       posy = posy % ((((hexsize - 70) / 60) * 46 + 25) * 2);
+  //       fram.style.top = `${posy}px`;
+  //       setDelta((prev) => ({
+  //         ...prev,
+  //         y: prev.y + ((DataSize - 2) % (DataSize * 3)),
+  //       }));
+  //     }
+  //     if (posy < -((((hexsize - 70) / 60) * 46 + 25) * 2)) {
+  //       // fram.style.top = `0px`;
+  //       posy = -posy;
+  //       posy = posy % ((((hexsize - 70) / 60) * 46 + 25) * 2);
+  //       posy = -posy;
+  //       fram.style.top = `${posy}px`;
+  //       setDelta((prev) => ({ ...prev, y: prev.y + 2 }));
+  //     }
+  //     if (posx > ((hexsize - 100) / 30) * 23 + 50) {
+  //       // fram.style.left = `0px`;
+  //       let multiple = parseInt(posx / (((hexsize - 100) / 30) * 23 + 50));
+
+  //       posx = posx % (((hexsize - 100) / 30) * 23 + 50);
+  //       fram.style.left = `${posx}px`;
+  //       setDelta((prev) => ({
+  //         ...prev,
+  //         x: prev.x + ((multiple * (DataSize - 1)) % (DataSize * 3)),
+  //       }));
+  //     }
+  //     if (posx < -(((hexsize - 100) / 30) * 23 + 50)) {
+  //       // fram.style.left = `0px`;
+  //       posx = -posx;
+  //       let multiple = parseInt(posx / (((hexsize - 100) / 30) * 23 + 50));
+  //       posx = posx % (((hexsize - 100) / 30) * 23 + 50);
+  //       posx = -posx;
+  //       fram.style.left = `${posx}px`;
+  //       setDelta((prev) => ({ ...prev, x: prev.x + multiple * 1 }));
+  //       // fram.style.left = `0px`;
+  //     }
+  //   }
+  // };
+
   const autoscroll = ({ x, y }) => {
     // let currentx = e.clientX;
     // let currenty = e.clientY;
+    if (!RefisAutoScroll) {
+      setCursor("auto");
+      return;
+    }
     let currentx = x;
     let currenty = y;
     let deltax = currentx - StartPos.x;
     let deltay = currenty - StartPos.y;
-    // console.log(deltax, deltay);
+
     if (Math.abs(deltax) > 20 && Math.abs(deltay) > 20) {
       if (deltax > 0 && deltay < 0) {
         if (cursor != "custom-up-right") {
@@ -259,7 +379,10 @@ export default function Hive(props) {
           setCursor("custom-down-left");
         }
       }
-      frameScroll(deltax / 5, deltay / 5);
+      deltax = Math.abs(deltax) < 60 ? deltax / 2 : deltax;
+      deltay = Math.abs(deltay) < 60 ? deltay / 2 : deltay;
+
+      frameScroll(deltax, deltay);
     } else if (Math.abs(deltax) > 20 || Math.abs(deltay) > 20) {
       if (Math.abs(deltax) < Math.abs(deltay)) {
         if (deltay > 0) {
@@ -282,7 +405,9 @@ export default function Hive(props) {
           }
         }
       }
-      frameScroll(deltax / 5, deltay / 5);
+      deltax = Math.abs(deltax) < 60 ? deltax / 2 : deltax;
+      deltay = Math.abs(deltay) < 60 ? deltay / 2 : deltay;
+      frameScroll(deltax, deltay);
     } else {
       if (cursor != "custom") {
         setCursor("custom");
@@ -315,9 +440,16 @@ export default function Hive(props) {
         setCursor("custom");
         StartPos = { x: e.clientX, y: e.clientY };
         RefisAutoScroll = true;
-        AutoScrollInterval = setInterval(() => {
+        // AutoScrollInterval = setInterval(() => {
+        //   autoscroll(CurrentPos);
+        // }, 10);
+        const ScrollCaller = () => {
           autoscroll(CurrentPos);
-        }, 10);
+          if (RefisAutoScroll) {
+            window.requestAnimationFrame(ScrollCaller);
+          }
+        };
+        window.requestAnimationFrame(ScrollCaller);
       }
     }
     // if(e.buttons)
@@ -337,24 +469,25 @@ export default function Hive(props) {
     if (RefisAutoScroll) {
       setCursor("auto");
       RefisAutoScroll = false;
-      clearInterval(AutoScrollInterval);
+      // clearInterval(AutoScrollInterval);
     }
     // setIsAutoScroll(false);
     // let frame = document.getElementById("hive");
     // frame.style.cursor = "auto";
   };
   const keypress = (e) => {
-    console.log("keypressed");
-    if (e.key == "d") {
-      setDelta((prev) => ({ ...prev, x: prev.x + 1 }));
-    } else if (e.key == "a") {
-      setDelta((prev) => ({ ...prev, x: prev.x + DataSize - 1 }));
-    } else if (e.key == "w") {
-      setDelta((prev) => ({ ...prev, y: prev.y + 2 }));
-    } else if (e.key == "s") {
-      setDelta((prev) => ({ ...prev, y: prev.y + DataSize - 2 }));
-    }
+    // console.log("keypressed");
+    // if (e.key == "d") {
+    //   setDelta((prev) => ({ ...prev, x: prev.x + 1 }));
+    // } else if (e.key == "a") {
+    //   setDelta((prev) => ({ ...prev, x: prev.x + DataSize - 1 }));
+    // } else if (e.key == "w") {
+    //   setDelta((prev) => ({ ...prev, y: prev.y + 2 }));
+    // } else if (e.key == "s") {
+    //   setDelta((prev) => ({ ...prev, y: prev.y + DataSize - 2 }));
+    // }
   };
+
   const logMouseOver = (e) => {
     if (e.buttons === 1 && e.target.className == "value") {
       console.log(e.target.dataset);
@@ -376,6 +509,8 @@ export default function Hive(props) {
       window.removeEventListener("mousedown", logMousedown);
       window.removeEventListener("mousemove", logMousemove);
       window.removeEventListener("mouseup", logmouseUp);
+      window.removeEventListener("wheel", scroll);
+      window.removeEventListener("keypress", keypress);
     };
   }, []);
   const HexClicked = (i, j) => {};
@@ -385,20 +520,24 @@ export default function Hive(props) {
         {/* <Base> */}
         <Frame left={"0px"} top={"0px"} id="hive" cursor={cursor}>
           {/* {Hexgrid.map((hex) => hex)} */}
-          {Hexgrid.map((hex, idx) => (
-            <MemorisexHex
-              key={`${hex[4][0]},${hex[4][1]}`}
-              count={`${hex[4][0]},${hex[4][1]}`}
-              s={hex[1] - 40}
-              x={hex[2]}
-              y={hex[3]}
-              i={(hex[4][0] + delta.y) % DataSize}
-              j={(hex[4][1] + delta.x) % DataSize}
-              width={width.current}
-              LeftButtonDown={LeftButtonDown}
-              moving={moving}
-            />
-          ))}
+
+          <Suspense fallback={<Loading />}>
+            {Hexgrid.map((hex, idx) => (
+              <MemorisexHex
+                key={`${hex[4][0]},${hex[4][1]}`}
+                count={`${hex[4][0]},${hex[4][1]}`}
+                s={hex[1] - 40}
+                x={hex[2]}
+                y={hex[3]}
+                i={(hex[4][0] + delta.y) % DataSize}
+                j={(hex[4][1] + delta.x) % DataSize}
+                width={width.current}
+                LeftButtonDown={LeftButtonDown}
+
+                // moving={moving}
+              />
+            ))}
+          </Suspense>
         </Frame>
         {/* </Base> */}
       </div>

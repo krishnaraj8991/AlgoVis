@@ -12,6 +12,7 @@ import Switch from "./components/Switch";
 // Store
 import { Provider } from "react-redux";
 import store from "./redux/store";
+import PlayPause from "./NevBars/PlayPause";
 
 const Container = styled.div`
   position: relative;
@@ -42,6 +43,33 @@ const Space = styled.div`
 `;
 const App = () => {
   const [lightTheme, setLighttheme] = useState(false);
+  const dropdown = [
+    { key: 1, switch: true, value: "Boundary" },
+    { key: 2, switch: true, value: "Animation" },
+    { key: 3, switch: true, value: "Something" },
+  ];
+  const algos = [
+    {
+      key: 1,
+      value: "A* Search",
+    },
+    {
+      key: 2,
+      value: "Dijkstra's Algorithm",
+    },
+    {
+      key: 3,
+      value: "Greedy Best-first Search",
+    },
+    {
+      key: 4,
+      value: "Breadth-first Search",
+    },
+    {
+      key: 5,
+      value: "Depth-first Search",
+    },
+  ];
   const theme = {
     light: lightTheme,
     LightTheme: {
@@ -64,33 +92,40 @@ const App = () => {
         <ThemeProvider theme={theme}>
           <BackGround>
             <NevBar>
-              <Switch
+              {/* <Switch
                 on={"true"}
                 onclick={() => {
                   console.log("clicked");
                 }}
-              />
-              <TheamSwitcher
-                on={lightTheme.toString()}
-                clicked={() => {
-                  setLighttheme((prev) => !prev);
-                }}
-              />
+              /> */}
+              <div id="cl1">
+                <NevItem value={"Algorithms"}>
+                  <DropdownMenu items={algos}></DropdownMenu>
+                </NevItem>
+              </div>
+              <div id="cl2">
+                <PlayPause value={"play"} />
+              </div>
 
-              {/* <NevItem icon="😀">
-              <DropdownMenu />
-            </NevItem>
-            <NevItem icon="😄" />
-            <NevItem icon="😄" /> */}
-              <NevItem icon={<CaretDown />}>
-                <DropdownMenu />
-              </NevItem>
+              <div id="cl3">
+                <TheamSwitcher
+                  on={lightTheme.toString()}
+                  clicked={() => {
+                    setLighttheme((prev) => !prev);
+                  }}
+                />
+              </div>
+              <div id="cl4">
+                <NevItem icon={<CaretDown />}>
+                  <DropdownMenu right items={dropdown}></DropdownMenu>
+                </NevItem>
+              </div>
             </NevBar>
 
             <Space />
 
             <Container>
-              <Hive />
+              <Hive lightTheme />
             </Container>
           </BackGround>
         </ThemeProvider>

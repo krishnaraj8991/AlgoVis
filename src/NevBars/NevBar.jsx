@@ -16,9 +16,23 @@ const NavbarNav = styled.ul`
   height: 100%;
   margin: 0px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  /* flex: 2 2 auto; */
   align-items: center;
+  & > * {
+    flex: 0 1 auto;
+  }
+  & #cl1,
+  #cl2 {
+    flex: 2 1 auto;
+  }
 `;
+// & #cl2 {
+//   flex: 0 1 auto;
+// }
+// & #cl3 {
+//   flex: 0 1 100;
+// }
 function NevBar(props) {
   const matches = useMediaQuery("(min-width: 600px)");
 

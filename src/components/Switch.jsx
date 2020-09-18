@@ -13,28 +13,30 @@ const Sheet = styled.div`
   padding: 10px;
 `;
 const Container = styled.div`
-  /* position: relatives; */
+  position: relative;
   height: 50%;
   width: 100%;
   border-radius: 20px;
   /* background-color: ${(props) =>
     !props.theme.light ? css`silver` : css`rgba(255, 137, 26, 1)`}; */
 
-  background-color: ${(props) =>
+  /* background-color: ${(props) =>
     props.on == "true"
       ? "lime"
       : props.theme.light
       ? "#f6e9e9"
-      : props.theme.DarkTheme.color};
+      : props.theme.DarkTheme.color}; */
 
+  background-color: #263859;
   display: flex;
   align-items: center;
   /* justify-content: ${(props) =>
     props.on == "true" ? css`flex-start` : css`flex-end`}; */
   transition: all 250ms ease-in;
+  overflow: hidden;
 `;
 const Switch = styled.div`
-  position: relative;
+  position: absolute;
   height: 100%;
   width: 50%;
   border-radius: 50%;
@@ -44,6 +46,16 @@ const Switch = styled.div`
   transition: transform 300ms ease-in-out;
   transform: ${(props) =>
     !(props.on == "true") ? css`translateX(0%)` : css`translateX(100%)`};
+`;
+const OnPlane = styled.div`
+  /* position: absolute; */
+  height: 100%;
+  width: 100%;
+  border-radius: 20px;
+  background-color: lime;
+  transition: transform 300ms ease-in-out;
+  transform: ${(props) =>
+    !(props.on == "true") ? css`translateX(-50%)` : css`translateX(0%)`};
 `;
 function Switchs(props) {
   const [isOn, setIsOn] = useState(!!props.on);
@@ -55,11 +67,14 @@ function Switchs(props) {
     <Sheet>
       <Container
         onClick={() => {
-          setIsOn((prev) => !prev);
-          props.onclick();
+          setIsOn((prev) => {
+            return !prev;
+          });
+          props.onclick(!isOn);
         }}
         on={isOn.toString()}
       >
+        <OnPlane on={isOn.toString()} />
         <Switch ref={switchref} on={isOn.toString()}>
           {/* {props.on == "true" ? <Sun /> : <Moon />} */}
         </Switch>

@@ -1,11 +1,18 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import Switchs from "../components/Switch";
 
-const Dropdown = styled.div`
-  position: absolute;
+const Dropdown = styled.ul`
+  position: fixed;
   top: 58px;
-  width: 300px;
-  transform: translatex(-45%);
+
+  ${(props) =>
+    props.right &&
+    css`
+      transform: translatex(-90%);
+    `};
+
+  /* transform: translatex(-90%); */
   background-color: #242526;
   border: 1px solid #474a4d;
   border-radius: 5px;
@@ -13,14 +20,15 @@ const Dropdown = styled.div`
   /* overflow: hidden; */
   filter: (1);
 `;
-const DropdownItem = styled.a`
+const DropdownItem = styled.li`
   height: 50px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  border-radius: 5px;
+  justify-content: space-between;
+
+  border-radius: 10px;
   transition: background-color 200ms;
-  padding: 0.5rem;
+  /* padding: 0.5rem; */
   margin: 0.5rem;
   background-color: #474a4d;
 
@@ -28,7 +36,12 @@ const DropdownItem = styled.a`
     filter: brightness(1.2);
   }
 `;
-const IconButton = styled.a`
+const H2 = styled.h4`
+  color: white;
+  padding: 0.5rem;
+  margin: 1rem;
+`;
+const IconButton = styled.div`
   --button-size: calc(60px * 0.5);
   width: var(--button-size);
   height: var(--button-size);
@@ -51,20 +64,47 @@ const IconButton = styled.a`
   }
 `;
 
-function DropdownMenu() {
+function DropdownMenu(props) {
+  console.log(props.items);
   function DropdownItems(props) {
     return (
-      <DropdownItem>
-        <IconButton>{props.leftIcon}</IconButton>
-        {props.children}
+      <DropdownItem
+        onClick={() => {
+          !props.switch && props.onClick();
+        }}
+      >
+        {props.leftIcon && <IconButton>{props.leftIcon}</IconButton>}
+        {props.value && <H2>{props.value}</H2>}
         {props.rightIcon && <IconButton>{props.rightIcon}</IconButton>}
+        {props.switch ? (
+          <Switchs
+            on={"true"}
+            onclick={(val) => {
+              // props.onClick(on);
+              console.log(props.value, ":-", val);
+            }}
+          />
+        ) : (
+          ""
+        )}
       </DropdownItem>
     );
   }
   return (
-    <Dropdown>
-      <DropdownItems leftIcon={"🍕"}>Hello</DropdownItems>
-      <DropdownItems leftIcon={"🍕"}>Hello</DropdownItems>
+    <Dropdown right={props.right}>
+      {props.items.map((item) => {
+        return (
+          <DropdownItems
+            key={item.key}
+            leftIcon={item.icon}
+            switch={item.switch}
+            onClick={() => {
+              console.log(item.value);
+            }}
+            value={item.value}
+          ></DropdownItems>
+        );
+      })}
     </Dropdown>
   );
 }

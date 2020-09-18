@@ -17,7 +17,7 @@ import {
   Set_AS_WALL,
 } from "./graphTypes";
 
-let DataSize = 100;
+let DataSize = 40;
 console.log("Initializing data", DataSize);
 let ar = [];
 let leng = DataSize;
@@ -31,7 +31,7 @@ for (let i = 0; i < leng; i++) {
   }
 }
 ar[5][5] = StartNode;
-ar[5][10] = TargetNode;
+ar[5][9] = TargetNode;
 // ar[3][3] = 6;
 console.log(DataSize);
 
@@ -41,7 +41,7 @@ const initialState = {
   movingStart: false,
   movingTarget: false,
   start: { i: 5, j: 5 },
-  target: { i: 5, j: 10 },
+  target: { i: 5, j: 9 },
   boundaryWalls: true,
 };
 

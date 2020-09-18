@@ -28,27 +28,16 @@ function MemorisexHex(props) {
   }));
   const dispatch = useDispatch();
   const EventHandler = () => {
-    // if (val == BlankNode) {
-    //   dispatch(SetAsWall({ i, j }));
-    // } else if (val == Wall) {
-    //   dispatch(RemoveWall({ i, j }));
-    // }
-
     if (movingStart) {
       dispatch(MoveStartTo({ i, j }));
       // console.log("movnig");
     } else if (movingTarget) {
       dispatch(MoveTargetTo({ i, j }));
     } else {
-      switch (val) {
-        case BlankNode:
-          dispatch(SetAsWall({ i, j }));
-          break;
-        case Wall:
-          dispatch(RemoveWall({ i, j }));
-          break;
-        default:
-          break;
+      if (val == BlankNode) {
+        dispatch(FixAsWall({ i, j }));
+      } else if (val == WallTransition || val == Wall) {
+        dispatch(RemoveWall({ i, j }));
       }
     }
   };
@@ -63,6 +52,7 @@ function MemorisexHex(props) {
   };
   const MouseDownHandler = (e) => {
     if (
+      !LeftButtonDown.current &&
       e.button == 0 &&
       (e.target.className == "Trigger" || e.target.tagName == "rect")
     ) {
@@ -87,13 +77,6 @@ function MemorisexHex(props) {
       dispatch(MoveingTarget(false));
     }
   };
-  useEffect(() => {
-    if (val == WallTransition) {
-      const interval = setTimeout(() => {
-        dispatch(FixAsWall({ i, j }));
-      }, 250);
-    }
-  }, [val]);
   return (
     <div
       onClick={ClickHandler}
