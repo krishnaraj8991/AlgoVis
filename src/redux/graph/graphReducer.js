@@ -15,23 +15,29 @@ import {
   Remove_Wall,
   Set_AS_WALL,
   Set_Boundarys,
+  Set_Size,
 } from "./graphTypes";
 
 let DataSize = 40;
 console.log("Initializing data", DataSize);
-let ar = [];
-let leng = DataSize;
-for (let i = 0; i < leng; i++) {
-  ar[i] = [];
-  for (let j = 0; j < leng; j++) {
-    ar[i][j] = 1;
-    if (i == 0 || j == 0) {
-      ar[i][j] = 0;
+const Generategraph = (Size) => {
+  let ar = [];
+  let leng = Size;
+  for (let i = 0; i < leng; i++) {
+    ar[i] = [];
+    for (let j = 0; j < leng; j++) {
+      ar[i][j] = 1;
+      if (i == 0 || j == 0) {
+        ar[i][j] = 0;
+      }
     }
   }
-}
-ar[5][5] = StartNode;
-ar[5][9] = TargetNode;
+  ar[1][1] = StartNode;
+  ar[ar.length - 1][ar.length - 1] = TargetNode;
+  return ar;
+};
+let ar = Generategraph(DataSize);
+
 // ar[3][3] = 6;
 console.log(DataSize);
 
@@ -40,8 +46,8 @@ const initialState = {
   graph: [...ar],
   movingStart: false,
   movingTarget: false,
-  start: { i: 5, j: 5 },
-  target: { i: 5, j: 9 },
+  start: { i: 1, j: 1 },
+  target: { i: ar.length - 1, j: ar.length - 1 },
   boundaryWalls: true,
 };
 
@@ -61,7 +67,11 @@ const graphReducer = (state = initialState, action) => {
     case Remove_Wall: {
       let graph = state.graph;
       const { i, j } = action.payload;
-      if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
+      if (
+        !(i == 0 || j == 0) &&
+        graph[i][j] != StartNode &&
+        graph[i][j] != TargetNode
+      ) {
         graph[i][j] = BlankNode;
       }
       return {
@@ -145,6 +155,20 @@ const graphReducer = (state = initialState, action) => {
         graph: graph,
         boundaryWalls: !state.boundaryWalls,
       };
+    }
+    case Set_Size: {
+      const size = state.size;
+      if (size != action.payload) {
+        let ar = Generategraph(action.payload);
+        return {
+          ...state,
+          size: action.payload,
+          graph: [...ar],
+          start: { i: 1, j: 1 },
+          target: { i: ar.length - 1, j: ar.length - 1 },
+        };
+      }
+      return state;
     }
     default:
       return state;

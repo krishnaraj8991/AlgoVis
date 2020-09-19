@@ -13,6 +13,7 @@ import { Provider, useDispatch } from "react-redux";
 import store from "./redux/store";
 import PlayPause from "./NevBars/PlayPause";
 import SideMenu from "./NevBars/SideMenu";
+import GridSize from "./NevBars/GridSize";
 
 const Container = styled.div`
   position: relative;
@@ -85,6 +86,15 @@ const App = () => {
               <div id="cl1">
                 <NevItem value={"Algorithms"}>
                   <DropdownMenu items={algos}></DropdownMenu>
+                </NevItem>
+              </div>
+              <div id="cl1">
+                <NevItem value={"Portals"} />
+              </div>
+
+              <div id="cl5">
+                <NevItem value={"GridSize"}>
+                  <GridSize />
                 </NevItem>
               </div>
               <div id="cl2">

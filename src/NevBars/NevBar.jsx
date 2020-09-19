@@ -22,9 +22,47 @@ const NavbarNav = styled.ul`
   & > * {
     flex: 0 1 auto;
   }
-  & #cl1,
-  #cl2 {
+  /* & #cl2 {
+    flex: 3 1 auto;
+  } */
+  & #cl5 {
     flex: 2 1 auto;
+  }
+  & #cl1,
+  #cl5,
+  #cl2 {
+    min-width: 150px;
+  }
+  & #cl2 {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, -50%);
+  }
+`;
+const NavbarNavCol = styled.ul`
+  max-width: 100%;
+  height: 100%;
+  margin: 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  /* flex: 2 2 auto; */
+  align-items: center;
+  & > * {
+    flex: 0 1 auto;
+  }
+
+  & #cl1,
+  #cl5 {
+    flex: 2 1 auto;
+    min-width: 150px;
+  }
+  & #cl2 {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, -50%);
   }
 `;
 // & #cl2 {
@@ -42,7 +80,7 @@ function NevBar(props) {
       {matches ? (
         <NavbarNav>{props.children}</NavbarNav>
       ) : (
-        <NavbarNav>{props.children}</NavbarNav>
+        <NavbarNavCol>{props.children}</NavbarNavCol>
       )}
     </NevBarContainer>
   );

@@ -136,7 +136,7 @@ export default function Hive(props) {
    it is updated every tume the grid plane is shifted
   */
   const [delta, setDelta] = useState({ x: 0, y: 0 });
-  let DataSize = 10;
+  // let DataSize = 0;
   const [hexsize, setSize] = useState(110);
   let width = useRef(-1);
 
@@ -148,7 +148,6 @@ export default function Hive(props) {
 
   // left mouse button down from child component reference
   let LeftButtonDown = useRef(false);
-
   const [cursor, setCursor] = useState("auto");
   // let deltax = 0;
   // let deltay = 0;
@@ -156,8 +155,9 @@ export default function Hive(props) {
   let iLimit = 8;
 
   // Initialize data grid
-  let ar = useSelector((state) => state.graph.graph);
-  DataSize = useSelector((state) => state.graph.size);
+  // let ar = useSelector((state) => state.graph.graph);
+  let DataSize1 = useRef(0);
+  DataSize1.current = useSelector((state) => state.graph.size);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -220,8 +220,12 @@ export default function Hive(props) {
     }
   }, [hexsize, window.innerWidth]);
 
-  // Frame Scroll with Transform translate
-  const frameScroll = (deltax, deltay) => {
+  useEffect(() => {
+    console.log(DataSize1, "updated");
+    // let DataSize = size;
+  }, [DataSize1]);
+
+  const frameScroll = (deltax, deltay, DataSize) => {
     let fram = document.getElementById("hive");
     if (fram) {
       const frame = fram;
@@ -289,6 +293,7 @@ export default function Hive(props) {
       }
     }
   };
+  // Frame Scroll with Transform translate
 
   /* Frame scroll with absolute positions */
   // const frameScroll = (deltax, deltay) => {
@@ -379,10 +384,10 @@ export default function Hive(props) {
           setCursor("custom-down-left");
         }
       }
-      deltax = Math.abs(deltax) < 60 ? deltax / 2 : deltax;
-      deltay = Math.abs(deltay) < 60 ? deltay / 2 : deltay;
+      // deltax = Math.abs(deltax) < 60 ? deltax / 2 : deltax;
+      // deltay = Math.abs(deltay) < 60 ? deltay / 2 : deltay;
 
-      frameScroll(deltax, deltay);
+      frameScroll(deltax / 3, deltay / 3, DataSize1.current);
     } else if (Math.abs(deltax) > 20 || Math.abs(deltay) > 20) {
       if (Math.abs(deltax) < Math.abs(deltay)) {
         if (deltay > 0) {
@@ -405,9 +410,9 @@ export default function Hive(props) {
           }
         }
       }
-      deltax = Math.abs(deltax) < 60 ? deltax / 2 : deltax;
-      deltay = Math.abs(deltay) < 60 ? deltay / 2 : deltay;
-      frameScroll(deltax, deltay);
+      // deltax = Math.abs(deltax) < 60 ? deltax / 2 : deltax;
+      // deltay = Math.abs(deltay) < 60 ? deltay / 2 : deltay;
+      frameScroll(deltax / 3, deltay / 3, DataSize1.current);
     } else {
       if (cursor != "custom") {
         setCursor("custom");
@@ -423,7 +428,7 @@ export default function Hive(props) {
       deltay = 0;
     }
 
-    frameScroll(deltax / 5, deltay / 5);
+    frameScroll(deltax / 5, deltay / 5, DataSize1.current);
   };
 
   const logMousedown = (e) => {
@@ -516,6 +521,7 @@ export default function Hive(props) {
   const HexClicked = (i, j) => {};
   return (
     <>
+      {/* {console.log("rerender")} */}
       <div style={Base}>
         {/* <Base> */}
         <Frame left={"0px"} top={"0px"} id="hive" cursor={cursor}>
@@ -529,8 +535,8 @@ export default function Hive(props) {
                 s={hex[1] - 40}
                 x={hex[2]}
                 y={hex[3]}
-                i={(hex[4][0] + delta.y) % DataSize}
-                j={(hex[4][1] + delta.x) % DataSize}
+                i={(hex[4][0] + delta.y) % DataSize1.current}
+                j={(hex[4][1] + delta.x) % DataSize1.current}
                 width={width.current}
                 LeftButtonDown={LeftButtonDown}
 

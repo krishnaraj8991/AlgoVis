@@ -8,3 +8,4 @@ export const Move_Start_To = "Move_Start_To";
 export const Moving_Target = "Moving_Target";
 export const Moving_Start = "Moving_Start";
 export const Set_Boundarys = "Set_Boundarys";
+export const Set_Size = "Set_Size";

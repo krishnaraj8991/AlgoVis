@@ -36,6 +36,7 @@ const IconButton = styled.a`
 const Button = styled.div`
   --button-size: calc(60px * 0.4);
   width: auto;
+
   height: var(--button-size);
   border-radius: 5px;
   display: flex;
@@ -44,13 +45,24 @@ const Button = styled.div`
   font-size: 130%;
   padding: 5px;
   margin: 2px;
-  transition: filter 500ms;
+  transition: filter 250ms;
+  border-style: solid;
+  border-width: medium;
+  border-color: transparent;
   :hover {
-    background-color: gray;
+    /* background-color: gray; */
+    border-color: gray;
+
     filter: brightness(1.3);
   }
   &.open {
+    transition: all 250ms;
     background-color: gray;
+    border-color: gray;
+
+    :hover {
+      filter: brightness(1);
+    }
   }
 `;
 const H2 = styled.h4`
@@ -73,6 +85,21 @@ function NevItem(props) {
             <H2>{value}</H2>
           </Button>
           {open && props.children}
+          {open && (
+            <div
+              style={{
+                position: "fixed",
+                top: "0px",
+                left: "0px",
+                height: "100%",
+                width: "100%",
+                backgroundColor: "transparent",
+              }}
+              onClick={() => {
+                setOpen((prev) => !prev);
+              }}
+            ></div>
+          )}
         </Navitem>
       ) : (
         <Navitem>
@@ -86,6 +113,22 @@ function NevItem(props) {
           </IconButton>
           {/* {props.children} */}
           {open && props.children}
+          {open && (
+            <div
+              style={{
+                position: "fixed",
+                top: "0px",
+                left: "0px",
+                height: "100%",
+                width: "100%",
+                backgroundColor: "transparent",
+                zIndex: "-1",
+              }}
+              onClick={() => {
+                setOpen((prev) => !prev);
+              }}
+            ></div>
+          )}
         </Navitem>
       )}
     </>
