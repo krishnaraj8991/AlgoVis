@@ -1,9 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 
 const Navitem = styled.li`
-  width: calc(60px * 0.8);
+  /* width: calc(60px * 0.8); */
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -35,8 +36,6 @@ const IconButton = styled.a`
 `;
 const Button = styled.div`
   --button-size: calc(60px * 0.4);
-  width: auto;
-
   height: var(--button-size);
   border-radius: 5px;
   display: flex;
@@ -68,10 +67,12 @@ const Button = styled.div`
 const H2 = styled.h4`
   color: white;
   padding: 0.5rem;
+  cursor: default;
 `;
 function NevItem(props) {
   const [open, setOpen] = useState(false);
-  const { value, icon } = props;
+  const { value, icon, onClick } = props;
+  const dispatch = useDispatch();
   return (
     <>
       {value ? (
@@ -80,9 +81,13 @@ function NevItem(props) {
             className={open ? " open" : ""}
             onClick={() => {
               setOpen((prev) => !prev);
+              if (onClick) {
+                onClick(dispatch);
+                setOpen((prev) => !prev);
+              }
             }}
           >
-            <H2>{value}</H2>
+            <H2 unselectable="on">{value}</H2>
           </Button>
           {open && props.children}
           {open && (
@@ -98,6 +103,9 @@ function NevItem(props) {
               onClick={() => {
                 setOpen((prev) => !prev);
               }}
+              onMouseDown={() => {
+                setOpen((prev) => !prev);
+              }}
             ></div>
           )}
         </Navitem>
@@ -109,7 +117,7 @@ function NevItem(props) {
               setOpen((prev) => !prev);
             }}
           >
-            {props.icon}
+            {icon}
           </IconButton>
           {/* {props.children} */}
           {open && props.children}
@@ -125,6 +133,9 @@ function NevItem(props) {
                 zIndex: "-1",
               }}
               onClick={() => {
+                setOpen((prev) => !prev);
+              }}
+              onMouseDown={() => {
                 setOpen((prev) => !prev);
               }}
             ></div>

@@ -1,5 +1,17 @@
-export const Wall = 0;
-export const BlankNode = 1;
+export const BlankNode = 0;
+
+// Wall and transition
+export const Wall = 1;
 export const WallTransition = 2;
+
+// Start and end Node
 export const StartNode = 3;
 export const TargetNode = 4;
+
+// Explored Node and Transition
+export const ExploredNode = 5;
+export const ExploredNodeTransition = 6;
+
+// Final Path Node
+export const PathNode = 7;
+export const PathNodeTransition = 8;

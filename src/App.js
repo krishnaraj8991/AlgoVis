@@ -15,6 +15,8 @@ import PlayPause from "./NevBars/PlayPause";
 import SideMenu from "./NevBars/SideMenu";
 import GridSize from "./NevBars/GridSize";
 
+import { ClearGrid } from "./redux/graph/graphActions";
+
 const Container = styled.div`
   position: relative;
   /* margin: auto 0; */
@@ -77,21 +79,16 @@ const App = () => {
         <ThemeProvider theme={theme}>
           <BackGround>
             <NevBar>
-              {/* <Switch
-                on={"true"}
-                onclick={() => {
-                  console.log("clicked");
+              <NevItem value={"Algorithms"}>
+                <DropdownMenu items={algos}></DropdownMenu>
+              </NevItem>
+              <NevItem value={"Portals"} />
+              <NevItem
+                value={"ClearGrid"}
+                onClick={(dispatch) => {
+                  dispatch(ClearGrid());
                 }}
-              /> */}
-              <div id="cl1">
-                <NevItem value={"Algorithms"}>
-                  <DropdownMenu items={algos}></DropdownMenu>
-                </NevItem>
-              </div>
-              <div id="cl1">
-                <NevItem value={"Portals"} />
-              </div>
-
+              />
               <div id="cl5">
                 <NevItem value={"GridSize"}>
                   <GridSize />
@@ -101,17 +98,13 @@ const App = () => {
                 <PlayPause value={"play"} />
               </div>
 
-              <div id="cl3">
-                <TheamSwitcher
-                  on={lightTheme.toString()}
-                  clicked={() => {
-                    setLighttheme((prev) => !prev);
-                  }}
-                />
-              </div>
-              <div id="cl4">
-                <SideMenu></SideMenu>
-              </div>
+              <TheamSwitcher
+                on={lightTheme.toString()}
+                clicked={() => {
+                  setLighttheme((prev) => !prev);
+                }}
+              />
+              <SideMenu></SideMenu>
             </NevBar>
 
             <Space />

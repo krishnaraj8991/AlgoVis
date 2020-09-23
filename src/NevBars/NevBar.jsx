@@ -20,19 +20,20 @@ const NavbarNav = styled.ul`
   /* flex: 2 2 auto; */
   align-items: center;
   & > * {
+    display: flex;
+    justify-content: flex-start;
     flex: 0 1 auto;
+    width: auto;
+    /* min-width: 130px; */
   }
   /* & #cl2 {
     flex: 3 1 auto;
   } */
+
   & #cl5 {
     flex: 2 1 auto;
   }
-  & #cl1,
-  #cl5,
-  #cl2 {
-    min-width: 150px;
-  }
+
   & #cl2 {
     position: absolute;
     left: 50%;
@@ -51,10 +52,9 @@ const NavbarNavCol = styled.ul`
   align-items: center;
   & > * {
     flex: 0 1 auto;
+    min-width: auto;
   }
-
-  & #cl1,
-  #cl5 {
+  & #cl5 {
     flex: 2 1 auto;
     min-width: 150px;
   }

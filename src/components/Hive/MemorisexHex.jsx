@@ -39,9 +39,24 @@ function MemorisexHex(props) {
       if (val == BlankNode) {
         if (animation) {
           dispatch(SetAsWall({ i, j }));
-          setTimeout(() => {
-            dispatch(FixAsWall({ i, j }));
-          }, 350);
+
+          // Replacing SetTimeout with RequestAnimationFrame
+          // setTimeout(() => {
+          //   dispatch(FixAsWall({ i, j }));
+          // }, 350);
+          const endTime = new Date().getTime() + 250;
+          const AnimationTimeout = () => {
+            const currentTime = new Date().getTime();
+            const remaining = endTime - currentTime;
+            if (remaining < 1) {
+              dispatch(FixAsWall({ i, j }));
+              // console.log("fixed as wall");
+            } else {
+              requestAnimationFrame(AnimationTimeout);
+            }
+          };
+          // kick it all off
+          requestAnimationFrame(AnimationTimeout);
         } else {
           dispatch(FixAsWall({ i, j }));
         }

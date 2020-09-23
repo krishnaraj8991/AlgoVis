@@ -6,12 +6,13 @@ import { ReactComponent as Target } from "../../_Icons/target.svg";
 
 import {
   BlankNode,
+  ExploredNode,
+  ExploredNodeTransition,
   StartNode,
   TargetNode,
   Wall,
   WallTransition,
 } from "../../redux/graph/graphStates";
-import { FixAsWall } from "../../redux/graph/graphActions";
 
 const Container = styled.div`
   position: absolute;
@@ -38,6 +39,7 @@ const OuterDiv = styled.div`
   left: 50%;
   top: 50%;
   /* margin: 0; */
+  background-color: rgba(255, 255, 255, 0.4);
   clip-path: polygon(11% 12%, 60% 0%, 100% 40%, 88% 88%, 40% 100%, 0 60%);
   transform: translate(-50%, -50%);
   display: flex;
@@ -47,6 +49,38 @@ const OuterDiv = styled.div`
   & p {
     transform: rotate(-45deg);
   }
+`;
+
+const Explor = keyframes`
+0%{
+  opacity: 1;
+  /* background-color: #515585; */
+  background-color: #a7d129;
+  
+  transform: scale(0);
+}
+
+58%{
+  
+  /* background-color: #515585; */
+  background-color: #a7d129 ;
+  transform: scale(1);
+}
+60%{
+  /* background-color: #21e6c1; */
+  background-color: #ede68a;
+
+}
+80%{
+  /* background-color: #21e6c1; */
+  background-color: #ede68a;
+}
+100%{
+  opacity: 1;
+  transform: scale(1);
+  /* background-color: #278ea5; */
+  background-color: #219897;
+}
 `;
 
 const AnimationDiv = styled.div`
@@ -75,12 +109,23 @@ const AnimationDiv = styled.div`
   }
   &.WallTransition {
     /* opacity: 1; */
-    transition: transform 200ms ease-out;
+    transition: transform 250ms ease-in-out;
     transform: scale(1.2);
     opacity: 1;
   }
+  &.ExploredNode {
+    /* background-color: #278ea5; */
+    background-color: #219897;
+    transform: scale(1);
+    opacity: 1;
+  }
+  &.ExploredNodeTransition {
+    /* opacity: 1; */
+    animation: ${Explor} 350ms linear forwards;
+    /* background-color: #1e5f74; */
+    /* transform: scale(1); */
+  }
 `;
-
 const target = keyframes`
 0%{height: 10%;
     width: 10%;}
@@ -101,8 +146,8 @@ const Innerdiv = styled.div`
   text-align: center;
   position: absolute;
 
-  background-color: rgba(255, 255, 255, 0.4);
-
+  /* background-color: rgba(255, 255, 255, 0.4); */
+  background-color: white;
   height: 100%;
   width: 100%;
   left: 50%;
@@ -114,17 +159,23 @@ const Innerdiv = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-
+  opacity: 0;
+  &.Wall {
+    opacity: 0.4;
+  }
+  &.start,
+  &.target {
+    opacity: 1;
+    background-color: transparent;
+  }
   &.target svg {
     height: 50%;
     width: 50%;
-    /* animation: ${target} 350ms ease-out forwards; */
     transform: rotate(-45deg);
   }
   &.start svg {
     height: 40%;
     width: 40%;
-    /* animation: ${start} 350ms ease-out forwards; */
     transform: rotate(-45deg);
   }
 `;
@@ -158,6 +209,10 @@ const Hex = ({ s, x, y, count, val, width }) => {
               ? "WallTransition"
               : val == Wall
               ? "Wall"
+              : val == ExploredNodeTransition
+              ? "ExploredNodeTransition"
+              : val == ExploredNode
+              ? "ExploredNode"
               : ""
           }
           ref={AnimationRef}
@@ -168,10 +223,20 @@ const Hex = ({ s, x, y, count, val, width }) => {
           unselectable="on"
           val={val}
           className={
-            val != BlankNode && val != Wall
+            val != BlankNode && val != Wall && val != ExploredNode
               ? val == TargetNode
                 ? "target"
                 : "start"
+              : val == BlankNode
+              ? ""
+              : val == WallTransition
+              ? "WallTransition"
+              : val == Wall
+              ? "Wall"
+              : val == ExploredNodeTransition
+              ? "ExploredNodeTransition"
+              : val == ExploredNode
+              ? "ExploredNode"
               : ""
           }
         >

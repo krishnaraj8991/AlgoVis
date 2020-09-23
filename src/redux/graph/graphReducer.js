@@ -1,5 +1,7 @@
 import {
   BlankNode,
+  ExploredNode,
+  ExploredNodeTransition,
   StartNode,
   TargetNode,
   Wall,
@@ -7,6 +9,7 @@ import {
 } from "./graphStates";
 
 import {
+  Clear_Grid,
   Fix_AS_WALL,
   Move_Start_To,
   Move_Target_To,
@@ -26,9 +29,9 @@ const Generategraph = (Size) => {
   for (let i = 0; i < leng; i++) {
     ar[i] = [];
     for (let j = 0; j < leng; j++) {
-      ar[i][j] = 1;
+      ar[i][j] = BlankNode;
       if (i == 0 || j == 0) {
-        ar[i][j] = 0;
+        ar[i][j] = Wall;
       }
     }
   }
@@ -58,6 +61,7 @@ const graphReducer = (state = initialState, action) => {
       const { i, j } = action.payload;
       if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
         graph[i][j] = WallTransition;
+        // graph[i][j] = ExploredNodeTransition;
       }
       return {
         ...state,
@@ -67,8 +71,9 @@ const graphReducer = (state = initialState, action) => {
     case Remove_Wall: {
       let graph = state.graph;
       const { i, j } = action.payload;
+      const boundary = state.boundaryWalls;
       if (
-        !(i == 0 || j == 0) &&
+        (!(i == 0 || j == 0) || !boundary) &&
         graph[i][j] != StartNode &&
         graph[i][j] != TargetNode
       ) {
@@ -82,7 +87,10 @@ const graphReducer = (state = initialState, action) => {
     case Fix_AS_WALL: {
       let graph = state.graph;
       const { i, j } = action.payload;
-      graph[i][j] = Wall;
+      if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
+        graph[i][j] = Wall;
+        // graph[i][j] = ExploredNode;
+      }
       return {
         ...state,
         graph,
@@ -164,11 +172,23 @@ const graphReducer = (state = initialState, action) => {
           ...state,
           size: action.payload,
           graph: [...ar],
+          boundaryWalls: true,
           start: { i: 1, j: 1 },
           target: { i: ar.length - 1, j: ar.length - 1 },
         };
       }
       return state;
+    }
+    case Clear_Grid: {
+      const size = state.size;
+      let ar = Generategraph(size);
+      return {
+        ...state,
+        graph: [...ar],
+        boundaryWalls: true,
+        start: { i: 1, j: 1 },
+        target: { i: ar.length - 1, j: ar.length - 1 },
+      };
     }
     default:
       return state;

@@ -46,6 +46,7 @@ const Button = styled.div`
 const H2 = styled.h4`
   color: white;
   padding: 0.5rem;
+  user-select: none;
 `;
 const Input = styled.input`
   background-color: gray;

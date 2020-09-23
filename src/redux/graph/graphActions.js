@@ -8,6 +8,7 @@ import {
   Moving_Target,
   Set_Boundarys,
   Set_Size,
+  Clear_Grid,
 } from "./graphTypes";
 
 export const SetAsWall = ({ i, j }) => {
@@ -65,5 +66,11 @@ export const SetSize = (value) => {
   return {
     type: Set_Size,
     payload: value,
+  };
+};
+
+export const ClearGrid = () => {
+  return {
+    type: Clear_Grid,
   };
 };
