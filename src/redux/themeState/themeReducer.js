@@ -1,11 +1,12 @@
 import { FlipAnimationState } from "./themeActions";
 
 const { Switch } = require("@material-ui/core");
-const { flip, flip_Animation_State } = require("./themeType");
+const { flip, flip_Animation_State, Play_Pause } = require("./themeType");
 
 const initialState = {
   light: false,
   animation: false,
+  playpause: false,
 };
 const ThemeReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -18,6 +19,11 @@ const ThemeReducer = (state = initialState, action) => {
       return {
         ...state,
         animation: !state.animation,
+      };
+    case Play_Pause:
+      return {
+        ...state,
+        playpause: !state.playpause,
       };
     default:
       return state;

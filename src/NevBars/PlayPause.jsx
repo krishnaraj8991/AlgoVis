@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled, { keyframes } from "styled-components";
 import { Pause2, Play2 } from "../_Icons/PlayPause";
+import { PlayPauseAction } from "../redux/themeState/themeActions";
 const Container = styled.div`
   display: flex;
   justify-content: center;
@@ -54,8 +56,10 @@ const PauseDiv = styled.div`
   }
 `;
 
-function PlayPause({ value }) {
-  const [isOn, SetIsOn] = useState(false);
+function PlayPause() {
+  // const [isOn, SetIsOn] = useState(false);
+  const isOn = useSelector((state) => state.theme.playpause);
+  const dispatch = useDispatch();
   // useEffect(() => {
   //   console.log(isOn);
   // }, [isOn]);
@@ -63,7 +67,8 @@ function PlayPause({ value }) {
     <Container>
       <Button
         onClick={() => {
-          SetIsOn((prev) => !prev);
+          // SetIsOn((prev) => !prev);
+          dispatch(PlayPauseAction());
         }}
       >
         <PlayDiv>

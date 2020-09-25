@@ -135,7 +135,7 @@ export default function Hive(props) {
    starts at x:0 y:0 which means top left corner of the graph
    it is updated every tume the grid plane is shifted
   */
-  const [delta, setDelta] = useState({ x: 0, y: 0 });
+  const [delta, setDelta] = useState({ x: 2, y: 2 });
   // let DataSize = 0;
   const [hexsize, setSize] = useState(110);
   let width = useRef(-1);
@@ -221,12 +221,18 @@ export default function Hive(props) {
   }, [hexsize, window.innerWidth]);
 
   useEffect(() => {
-    console.log(DataSize1, "updated");
+    // console.log(DataSize1, "updated");
+    let DataSize = DataSize1.current;
+    setDelta({ x: DataSize * 5 - 5, y: DataSize * 5 - 5 });
+  }, [DataSize1.current]);
+  useEffect(() => {
+    // console.log(delta);
     // let DataSize = size;
-  }, [DataSize1]);
+  }, [delta]);
 
   const frameScroll = (deltax, deltay, DataSize) => {
     let fram = document.getElementById("hive");
+
     if (fram) {
       const frame = fram;
       if (!fram.style.transform) {
@@ -245,50 +251,71 @@ export default function Hive(props) {
 
       if (posy > (((hexsize - 70) / 60) * 46 + 25) * 2) {
         // fram.style.top = `0px`;
-        let multiple = parseInt(posy / ((((hexsize - 70) / 60) * 46 + 25) * 2));
+        let multiple = Math.floor(
+          posy / ((((hexsize - 70) / 60) * 46 + 25) * 2)
+        );
+        // multiple += multiple * 0.9;
+        // multiple = Math.floor(multiple);
         posy = posy % ((((hexsize - 70) / 60) * 46 + 25) * 2);
 
         fram.style.transform = `translate(${posx}px,${posy}px)`;
         // fram.style.top = `${posy}px`;
         setDelta((prev) => ({
           ...prev,
-          y: prev.y + ((multiple * (DataSize - 2)) % (DataSize * 3)),
+          y: (prev.y + multiple * (DataSize - 2)) % (DataSize * 3),
         }));
       }
       if (posy < -((((hexsize - 70) / 60) * 46 + 25) * 2)) {
         // fram.style.top = `0px`;
         posy = -posy;
-        let multiple = parseInt(posy / ((((hexsize - 70) / 60) * 46 + 25) * 2));
+        let multiple = Math.floor(
+          posy / ((((hexsize - 70) / 60) * 46 + 25) * 2)
+        );
+        multiple += multiple * 0.9;
+        multiple = Math.floor(multiple);
+        console.log(multiple);
         posy = posy % ((((hexsize - 70) / 60) * 46 + 25) * 2);
         posy = -posy;
 
         fram.style.transform = `translate(${posx}px,${posy}px)`;
         // fram.style.top = `${posy}px`;
-        setDelta((prev) => ({ ...prev, y: prev.y + multiple * 2 }));
+        setDelta((prev) => ({
+          ...prev,
+          y: (prev.y + multiple * 2) % (DataSize * 3),
+        }));
       }
       if (posx > ((hexsize - 100) / 30) * 23 + 50) {
         // fram.style.left = `0px`;
         let multiple = parseInt(posx / (((hexsize - 100) / 30) * 23 + 50));
-
+        // console.log(multiple);
+        multiple += multiple * 0.5;
+        multiple = parseInt(multiple);
         posx = posx % (((hexsize - 100) / 30) * 23 + 50);
 
         fram.style.transform = `translate(${posx}px,${posy}px)`;
         // fram.style.left = `${posx}px`;
         setDelta((prev) => ({
           ...prev,
-          x: prev.x + ((multiple * (DataSize - 1)) % (DataSize * 3)),
+          x: (prev.x + multiple * (DataSize - 1)) % (DataSize * 3),
         }));
       }
       if (posx < -(((hexsize - 100) / 30) * 23 + 50)) {
         // fram.style.left = `0px`;
         posx = -posx;
         let multiple = parseInt(posx / (((hexsize - 100) / 30) * 23 + 50));
+        // console.log(multiple);
+        multiple += multiple * 0.5;
+        multiple = parseInt(multiple);
+
         posx = posx % (((hexsize - 100) / 30) * 23 + 50);
         posx = -posx;
 
         fram.style.transform = `translate(${posx}px,${posy}px)`;
         // fram.style.left = `${posx}px`;
-        setDelta((prev) => ({ ...prev, x: prev.x + multiple * 1 }));
+        setDelta((prev) => ({
+          ...prev,
+          x: (prev.x + multiple * 1) % (DataSize * 3),
+        }));
         // fram.style.left = `0px`;
       }
     }
@@ -493,13 +520,6 @@ export default function Hive(props) {
     // }
   };
 
-  const logMouseOver = (e) => {
-    if (e.buttons === 1 && e.target.className == "value") {
-      console.log(e.target.dataset);
-      const { i, j } = e.target.dataset;
-      dispatch(SetAsWall({ i, j }));
-    }
-  };
   useEffect(() => {
     console.log("Listener Added");
     window.addEventListener("mousedown", logMousedown);
@@ -518,7 +538,7 @@ export default function Hive(props) {
       window.removeEventListener("keypress", keypress);
     };
   }, []);
-  const HexClicked = (i, j) => {};
+
   return (
     <>
       {/* {console.log("rerender")} */}

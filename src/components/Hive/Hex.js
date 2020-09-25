@@ -8,6 +8,7 @@ import {
   BlankNode,
   ExploredNode,
   ExploredNodeTransition,
+  NoNode,
   StartNode,
   TargetNode,
   Wall,
@@ -49,38 +50,35 @@ const OuterDiv = styled.div`
   & p {
     transform: rotate(-45deg);
   }
+  &.NoNode {
+    opacity: 0;
+  }
 `;
 
 const Explor = keyframes`
 0%{
   opacity: 1;
-  /* background-color: #515585; */
   background-color: #a7d129;
-  
   transform: scale(0);
 }
 
 58%{
-  
-  /* background-color: #515585; */
   background-color: #a7d129 ;
-  transform: scale(1);
 }
 60%{
-  /* background-color: #21e6c1; */
+  transform: scale(1);
   background-color: #ede68a;
 
 }
 80%{
-  /* background-color: #21e6c1; */
   background-color: #ede68a;
 }
 100%{
   opacity: 1;
   transform: scale(1);
-  /* background-color: #278ea5; */
   background-color: #219897;
 }
+
 `;
 
 const AnimationDiv = styled.div`
@@ -121,7 +119,7 @@ const AnimationDiv = styled.div`
   }
   &.ExploredNodeTransition {
     /* opacity: 1; */
-    animation: ${Explor} 350ms linear forwards;
+    animation: ${Explor} 500ms ease-out forwards;
     /* background-color: #1e5f74; */
     /* transform: scale(1); */
   }
@@ -163,17 +161,17 @@ const Innerdiv = styled.div`
   &.Wall {
     opacity: 0.4;
   }
-  &.start,
-  &.target {
+  &.StartNode,
+  &.TargetNode {
     opacity: 1;
     background-color: transparent;
   }
-  &.target svg {
+  &.TargetNode svg {
     height: 50%;
     width: 50%;
     transform: rotate(-45deg);
   }
-  &.start svg {
+  &.StartNode svg {
     height: 40%;
     width: 40%;
     transform: rotate(-45deg);
@@ -183,6 +181,8 @@ const Hex = ({ s, x, y, count, val, width }) => {
   const AnimationRef = useRef();
   const light = useSelector((state) => state.theme.light);
   const dispatch = useDispatch();
+  let ValClassName = "";
+  let ThemeClassName = light ? "light " : "dark ";
   useEffect(() => {
     let ele = document.getElementById(count).style;
     ele.height = `${s}px`;
@@ -190,31 +190,42 @@ const Hex = ({ s, x, y, count, val, width }) => {
     ele.top = `${y}px`;
     ele.left = `${x}px`;
   }, []);
-  return (
-    <Container
-      // s={s}
-      unselectable="on"
-      // x={x}
 
-      // y={y}
-      id={count}
-      className={light ? "light " : "dark "}
-    >
+  // Determine ClassName for the node
+  switch (val) {
+    case BlankNode:
+      ValClassName = "";
+      break;
+    case WallTransition:
+      ValClassName = "WallTransition";
+      break;
+    case Wall:
+      ValClassName = "Wall";
+      break;
+    case ExploredNodeTransition:
+      ValClassName = "ExploredNodeTransition";
+      break;
+    case ExploredNode:
+      ValClassName = "ExploredNode";
+      break;
+    case TargetNode:
+      ValClassName = "TargetNode";
+      break;
+    case StartNode:
+      ValClassName = "StartNode";
+      break;
+    case NoNode:
+      ValClassName = "NoNode";
+      break;
+    default:
+      ValClassName = "";
+  }
+
+  return (
+    <Container unselectable="on" id={count} className={ThemeClassName}>
       <OuterDiv unselectable="on">
         <AnimationDiv
-          className={
-            val == BlankNode
-              ? ""
-              : val == WallTransition
-              ? "WallTransition"
-              : val == Wall
-              ? "Wall"
-              : val == ExploredNodeTransition
-              ? "ExploredNodeTransition"
-              : val == ExploredNode
-              ? "ExploredNode"
-              : ""
-          }
+          className={`${ValClassName} ${ThemeClassName}`}
           ref={AnimationRef}
           light
           val={val}
@@ -222,23 +233,7 @@ const Hex = ({ s, x, y, count, val, width }) => {
         <Innerdiv
           unselectable="on"
           val={val}
-          className={
-            val != BlankNode && val != Wall && val != ExploredNode
-              ? val == TargetNode
-                ? "target"
-                : "start"
-              : val == BlankNode
-              ? ""
-              : val == WallTransition
-              ? "WallTransition"
-              : val == Wall
-              ? "Wall"
-              : val == ExploredNodeTransition
-              ? "ExploredNodeTransition"
-              : val == ExploredNode
-              ? "ExploredNode"
-              : ""
-          }
+          className={`${ValClassName} ${ThemeClassName}`}
         >
           <div
             className="Trigger"
@@ -251,6 +246,7 @@ const Hex = ({ s, x, y, count, val, width }) => {
               justifyContent: "center",
             }}
           >
+            {/* <p style={{ fontSize: "10px" }}>{ValClassName}</p> */}
             {val == StartNode ? <Start></Start> : ""}
             {val == TargetNode ? <Target></Target> : ""}
           </div>

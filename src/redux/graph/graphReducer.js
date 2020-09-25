@@ -10,12 +10,16 @@ import {
 
 import {
   Clear_Grid,
+  Fix_All_As_Explored,
+  Fix_AS_Explored,
   Fix_AS_WALL,
   Move_Start_To,
   Move_Target_To,
   Moving_Start,
   Moving_Target,
   Remove_Wall,
+  Set_All_As_Explored,
+  Set_AS_Explored,
   Set_AS_WALL,
   Set_Boundarys,
   Set_Size,
@@ -52,6 +56,8 @@ const initialState = {
   start: { i: 1, j: 1 },
   target: { i: ar.length - 1, j: ar.length - 1 },
   boundaryWalls: true,
+  beforeStart: BlankNode,
+  beforeTarget: BlankNode,
 };
 
 const graphReducer = (state = initialState, action) => {
@@ -68,6 +74,7 @@ const graphReducer = (state = initialState, action) => {
         graph,
       };
     }
+
     case Remove_Wall: {
       let graph = state.graph;
       const { i, j } = action.payload;
@@ -114,17 +121,16 @@ const graphReducer = (state = initialState, action) => {
       const { i: prevI, j: prevJ } = state.start;
       const { i, j } = action.payload;
       const boundaryWalls = state.boundaryWalls;
+      const { beforeStart } = state;
       if (graph[i][j] != TargetNode) {
-        if (boundaryWalls && (prevI == 0 || prevJ == 0)) {
-          graph[prevI][prevJ] = Wall;
-        } else {
-          graph[prevI][prevJ] = BlankNode;
-        }
+        graph[prevI][prevJ] = beforeStart;
+        const newBeforeStart = graph[i][j];
         graph[i][j] = StartNode;
         return {
           ...state,
           graph,
           start: { i, j },
+          beforeStart: newBeforeStart,
         };
       }
       return state;
@@ -133,19 +139,17 @@ const graphReducer = (state = initialState, action) => {
       let graph = state.graph;
       const { i: prevI, j: prevJ } = state.target;
       const { i, j } = action.payload;
-      const { i: startI, j: startJ } = state.start;
-      const boundaryWalls = state.boundaryWalls;
+      // const { i: startI, j: startJ } = state.start;
+      const { beforeTarget } = state;
       if (graph[i][j] != StartNode) {
-        if (boundaryWalls && (prevI == 0 || prevJ == 0)) {
-          graph[prevI][prevJ] = Wall;
-        } else {
-          graph[prevI][prevJ] = BlankNode;
-        }
+        graph[prevI][prevJ] = beforeTarget;
+        const newBeforeTarget = graph[i][j];
         graph[i][j] = TargetNode;
         return {
           ...state,
           graph,
           target: { i, j },
+          beforeTarget: newBeforeTarget,
         };
       }
       return state;
@@ -175,6 +179,8 @@ const graphReducer = (state = initialState, action) => {
           boundaryWalls: true,
           start: { i: 1, j: 1 },
           target: { i: ar.length - 1, j: ar.length - 1 },
+          beforeStart: BlankNode,
+          beforeTarget: BlankNode,
         };
       }
       return state;
@@ -188,6 +194,71 @@ const graphReducer = (state = initialState, action) => {
         boundaryWalls: true,
         start: { i: 1, j: 1 },
         target: { i: ar.length - 1, j: ar.length - 1 },
+
+        beforeStart: BlankNode,
+        beforeTarget: BlankNode,
+      };
+    }
+
+    case Set_AS_Explored: {
+      let graph = state.graph;
+      const { i, j } = action.payload;
+      if (!state.boundaryWalls || !(i == 0 || j == 0)) {
+        if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
+          graph[i][j] = ExploredNodeTransition;
+          // graph[i][j] = ExploredNodeTransition;
+        }
+      }
+      return {
+        ...state,
+        graph,
+      };
+    }
+    case Fix_AS_Explored: {
+      let graph = state.graph;
+      const { i, j } = action.payload;
+      if (!state.boundaryWalls || !(i == 0 || j == 0)) {
+        if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
+          graph[i][j] = ExploredNode;
+          // graph[i][j] = ExploredNodeTransition;
+        }
+      }
+      return {
+        ...state,
+        graph,
+      };
+    }
+    case Set_All_As_Explored: {
+      let graph = state.graph;
+
+      const arr = action.payload;
+      arr.map(({ i, j }) => {
+        if (!state.boundaryWalls || !(i == 0 || j == 0)) {
+          if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
+            graph[i][j] = ExploredNodeTransition;
+            // graph[i][j] = ExploredNodeTransition;
+          }
+        }
+      });
+      return {
+        ...state,
+        graph,
+      };
+    }
+    case Fix_All_As_Explored: {
+      let graph = state.graph;
+      const arr = action.payload;
+      arr.map(({ i, j }) => {
+        if (!state.boundaryWalls || !(i == 0 || j == 0)) {
+          if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
+            graph[i][j] = ExploredNode;
+            // graph[i][j] = ExploredNodeTransition;
+          }
+        }
+      });
+      return {
+        ...state,
+        graph,
       };
     }
     default:

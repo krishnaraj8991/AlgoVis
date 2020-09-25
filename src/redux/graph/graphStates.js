@@ -15,3 +15,9 @@ export const ExploredNodeTransition = 6;
 // Final Path Node
 export const PathNode = 7;
 export const PathNodeTransition = 8;
+
+// Portal Node
+export const PortalNode = 9;
+
+// NoNode
+export const NoNode = -1;

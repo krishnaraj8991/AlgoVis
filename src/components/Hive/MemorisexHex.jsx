@@ -8,9 +8,14 @@ import {
   MoveingTarget,
   MoveStartTo,
   MoveTargetTo,
+  SetAsExplored,
+  FixAsExplored,
 } from "../../redux/graph/graphActions";
 import {
   BlankNode,
+  ExploredNode,
+  ExploredNodeTransition,
+  NoNode,
   StartNode,
   TargetNode,
   Wall,
@@ -20,8 +25,15 @@ import Hex from "./Hex";
 function MemorisexHex(props) {
   const { i, j, LeftButtonDown, ...remainingProps } = props;
   //   console.log(i, j);
+  const DataSize1 = useSelector((state) => state.graph.size);
 
-  const val = useSelector((state) => state.graph.graph[i][j]);
+  const val = useSelector((state) => {
+    if (i < DataSize1 && j < DataSize1) {
+      return state.graph.graph[i][j];
+    }
+    return BlankNode;
+  });
+
   let { movingStart, movingTarget } = useSelector((state) => ({
     movingStart: state.graph.movingStart,
     movingTarget: state.graph.movingTarget,
@@ -39,17 +51,20 @@ function MemorisexHex(props) {
       if (val == BlankNode) {
         if (animation) {
           dispatch(SetAsWall({ i, j }));
+          // dispatch(SetAsExplored({ i, j }));
 
           // Replacing SetTimeout with RequestAnimationFrame
           // setTimeout(() => {
           //   dispatch(FixAsWall({ i, j }));
           // }, 350);
-          const endTime = new Date().getTime() + 250;
+
+          const endTime = new Date().getTime() + 350;
           const AnimationTimeout = () => {
             const currentTime = new Date().getTime();
-            const remaining = endTime - currentTime;
-            if (remaining < 1) {
+            // const remaining = endTime - currentTime;
+            if (currentTime > endTime) {
               dispatch(FixAsWall({ i, j }));
+              // dispatch(FixAsExplored({ i, j }));
               // console.log("fixed as wall");
             } else {
               requestAnimationFrame(AnimationTimeout);
@@ -59,8 +74,11 @@ function MemorisexHex(props) {
           requestAnimationFrame(AnimationTimeout);
         } else {
           dispatch(FixAsWall({ i, j }));
+          // dispatch(FixAsExplored({ i, j }));
         }
       } else if (val == WallTransition || val == Wall) {
+        dispatch(RemoveWall({ i, j }));
+      } else if (val == ExploredNodeTransition || val == ExploredNode) {
         dispatch(RemoveWall({ i, j }));
       }
     }

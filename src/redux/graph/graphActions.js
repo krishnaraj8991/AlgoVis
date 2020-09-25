@@ -9,6 +9,10 @@ import {
   Set_Boundarys,
   Set_Size,
   Clear_Grid,
+  Set_AS_Explored,
+  Fix_AS_Explored,
+  Set_All_As_Explored,
+  Fix_All_As_Explored,
 } from "./graphTypes";
 
 export const SetAsWall = ({ i, j }) => {
@@ -72,5 +76,31 @@ export const SetSize = (value) => {
 export const ClearGrid = () => {
   return {
     type: Clear_Grid,
+  };
+};
+
+export const SetAsExplored = ({ i, j }) => {
+  return {
+    type: Set_AS_Explored,
+    payload: { i, j },
+  };
+};
+export const SetAllAsExplored = (nodes) => {
+  return {
+    type: Set_All_As_Explored,
+    payload: nodes,
+  };
+};
+export const FixAllAsExplored = (nodes) => {
+  return {
+    type: Fix_All_As_Explored,
+    payload: nodes,
+  };
+};
+
+export const FixAsExplored = ({ i, j }) => {
+  return {
+    type: Fix_AS_Explored,
+    payload: { i, j },
   };
 };

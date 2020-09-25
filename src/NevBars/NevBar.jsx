@@ -77,11 +77,12 @@ function NevBar(props) {
   return (
     <NevBarContainer>
       {/* {console.log(matches)} */}
-      {matches ? (
+      {/* {matches ? (
         <NavbarNav>{props.children}</NavbarNav>
       ) : (
         <NavbarNavCol>{props.children}</NavbarNavCol>
-      )}
+      )} */}
+      <NavbarNav>{props.children}</NavbarNav>
     </NevBarContainer>
   );
 }
