@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useRef } from "react";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import {
   FixAsWall,
   RemoveWall,
@@ -16,6 +16,8 @@ import {
   ExploredNode,
   ExploredNodeTransition,
   NoNode,
+  PathNode,
+  PathNodeTransition,
   StartNode,
   TargetNode,
   Wall,
@@ -24,23 +26,32 @@ import {
 import Hex from "./Hex";
 function MemorisexHex(props) {
   const { i, j, LeftButtonDown, ...remainingProps } = props;
-  //   console.log(i, j);
-  const DataSize1 = useSelector((state) => state.graph.size);
 
+  const DataSize1 = useSelector((state) => state.graph.size);
   const val = useSelector((state) => {
     if (i < DataSize1 && j < DataSize1) {
       return state.graph.graph[i][j];
     }
     return BlankNode;
-  });
-
-  let { movingStart, movingTarget } = useSelector((state) => ({
-    movingStart: state.graph.movingStart,
-    movingTarget: state.graph.movingTarget,
-  }));
+  }, shallowEqual);
+  let { movingStart, movingTarget } = useSelector(
+    (state) => ({
+      movingStart: state.graph.movingStart,
+      movingTarget: state.graph.movingTarget,
+    }),
+    shallowEqual
+  );
 
   const animation = useSelector((state) => state.theme.animation);
+  const Speed = useSelector(
+    (state) => state.theme.animationSpeed,
+    shallowEqual
+  );
+
   const dispatch = useDispatch();
+
+  const HexRef = useRef(null);
+
   const EventHandler = () => {
     if (movingStart) {
       dispatch(MoveStartTo({ i, j }));
@@ -48,39 +59,25 @@ function MemorisexHex(props) {
     } else if (movingTarget) {
       dispatch(MoveTargetTo({ i, j }));
     } else {
-      if (val == BlankNode) {
+      if (
+        val == BlankNode ||
+        val == ExploredNodeTransition ||
+        val == ExploredNode ||
+        val == PathNode ||
+        val == PathNodeTransition
+      ) {
         if (animation) {
           dispatch(SetAsWall({ i, j }));
-          // dispatch(SetAsExplored({ i, j }));
-
-          // Replacing SetTimeout with RequestAnimationFrame
-          // setTimeout(() => {
-          //   dispatch(FixAsWall({ i, j }));
-          // }, 350);
-
-          const endTime = new Date().getTime() + 350;
-          const AnimationTimeout = () => {
-            const currentTime = new Date().getTime();
-            // const remaining = endTime - currentTime;
-            if (currentTime > endTime) {
-              dispatch(FixAsWall({ i, j }));
-              // dispatch(FixAsExplored({ i, j }));
-              // console.log("fixed as wall");
-            } else {
-              requestAnimationFrame(AnimationTimeout);
-            }
-          };
-          // kick it all off
-          requestAnimationFrame(AnimationTimeout);
         } else {
           dispatch(FixAsWall({ i, j }));
           // dispatch(FixAsExplored({ i, j }));
         }
       } else if (val == WallTransition || val == Wall) {
         dispatch(RemoveWall({ i, j }));
-      } else if (val == ExploredNodeTransition || val == ExploredNode) {
-        dispatch(RemoveWall({ i, j }));
       }
+      // else if (val == ExploredNodeTransition || val == ExploredNode) {
+      //   dispatch(RemoveWall({ i, j }));
+      // }
     }
   };
   const ClickHandler = () => {
@@ -93,6 +90,7 @@ function MemorisexHex(props) {
     }
   };
   const MouseDownHandler = (e) => {
+    // HexRef.current.ToggleclassName = "Wall";
     if (
       !LeftButtonDown.current &&
       e.button == 0 &&
@@ -105,6 +103,8 @@ function MemorisexHex(props) {
       if (val == TargetNode) {
         console.log("moving target");
         dispatch(MoveingTarget(true));
+      } else {
+        EventHandler();
       }
       // LeftButtonDown.current = true;
     }
@@ -119,14 +119,32 @@ function MemorisexHex(props) {
       dispatch(MoveingTarget(false));
     }
   };
+
+  useEffect(() => {
+    if (val == WallTransition) {
+      const endTime = new Date().getTime() + Speed;
+      const AnimationTimeout = () => {
+        const currentTime = new Date().getTime();
+        if (currentTime > endTime) {
+          dispatch(FixAsWall({ i, j }));
+        } else {
+          requestAnimationFrame(AnimationTimeout);
+        }
+      };
+      // kick it all off
+      requestAnimationFrame(AnimationTimeout);
+    }
+  }, [val]);
+
   return (
     <div
-      onClick={ClickHandler}
+      // onClick={ClickHandler}
       onMouseOver={OverHandler}
       onMouseDown={MouseDownHandler}
       onMouseUp={MouseUpHandler}
     >
-      <Hex {...remainingProps} val={val}></Hex>
+      {/* {console.log("rerendered")} */}
+      <Hex {...remainingProps} val={val} Ref={HexRef}></Hex>
     </div>
   );
 }

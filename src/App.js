@@ -5,6 +5,7 @@ import TheamSwitcher from "./components/TheamSwitcher";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import ReduxContainer from "./ReduxContainer";
+import WorkerContainer from "./WorkerContainer";
 const theme = {
   light: false,
   LightTheme: {
@@ -27,6 +28,7 @@ const App = () => {
         {/* Theam Provider */}
         <ThemeProvider theme={theme}>
           <ReduxContainer />
+          <WorkerContainer />
         </ThemeProvider>
       </Provider>
 

@@ -273,7 +273,6 @@ export default function Hive(props) {
         );
         multiple += multiple * 0.9;
         multiple = Math.floor(multiple);
-        console.log(multiple);
         posy = posy % ((((hexsize - 70) / 60) * 46 + 25) * 2);
         posy = -posy;
 

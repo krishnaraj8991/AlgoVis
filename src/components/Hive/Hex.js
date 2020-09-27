@@ -1,6 +1,6 @@
 import React, { createElement, useEffect, useRef, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { ReactComponent as Start } from "../../_Icons/start.svg";
 import { ReactComponent as Target } from "../../_Icons/target.svg";
 
@@ -9,6 +9,8 @@ import {
   ExploredNode,
   ExploredNodeTransition,
   NoNode,
+  PathNode,
+  PathNodeTransition,
   StartNode,
   TargetNode,
   Wall,
@@ -25,7 +27,7 @@ const Container = styled.div`
   clip-path: polygon(12% 12%, 60% 0%, 100% 40%, 88% 88%, 40% 100%, 0 60%);
   transform: translate(-50%, -50%) rotate(45deg);
   user-select: none;
-  transition: all 250ms ease-in;
+  /* transition: all 250ms ease-in; */
   padding: 0;
   &.dark {
     background-color: #263859;
@@ -55,15 +57,17 @@ const OuterDiv = styled.div`
   }
 `;
 
-const Explor = keyframes`
+const ExplorDark = keyframes`
 0%{
   opacity: 1;
   background-color: #a7d129;
+  border-radius:50%;
   transform: scale(0);
 }
 
 58%{
   background-color: #a7d129 ;
+  border-radius:50%;
 }
 60%{
   transform: scale(1);
@@ -76,7 +80,63 @@ const Explor = keyframes`
 100%{
   opacity: 1;
   transform: scale(1);
+  border-radius:0%;
   background-color: #219897;
+}
+
+`;
+
+const ExplorLight = keyframes`
+0%{
+  opacity: 1;
+  background-color: #6a2c70;
+  border-radius:50%;
+  transform: scale(0);
+}
+
+50%{
+  background-color: #6a2c70 ;
+  border-radius:50%;
+}
+55%{
+  transform: scale(1);
+  /* background-color: #f9ed69; */
+  background-color: #62d2a2;
+
+}
+80%{
+
+  /* background-color: #f9ed69; */
+  background-color: #62d2a2;
+
+}
+100%{
+  opacity: 1;
+  transform: scale(1);
+  border-radius:0%;
+  background-color: #b83b5e;
+}
+
+`;
+
+const WallAnimation = keyframes`
+0%{
+  opacity: 1;
+  background-color:  #3d3d3d;
+  transform: scale(0);
+  /* border-radius:50%; */
+}
+60%{
+  transform: scale(1);
+  background-color:  #3d3d3d;
+  /* border-radius:50%; */
+}
+
+100%{
+  opacity: 1;
+  transform: scale(1);
+  background-color: #010101;
+  /* border-radius:0%; */
 }
 
 `;
@@ -95,35 +155,78 @@ const AnimationDiv = styled.div`
   justify-content: center;
   opacity: 0;
   transform: scale(0);
-  clip-path: polygon(12% 12%, 60% 0%, 100% 40%, 88% 88%, 40% 100%, 0 60%);
   & p {
     transform: rotate(-45deg);
   }
   &.Wall {
-    /* opacity: 1; */
-    /* transition: transform 250ms ease-out; */
+    clip-path: polygon(12% 12%, 60% 0%, 100% 40%, 88% 88%, 40% 100%, 0 60%);
     transform: scale(1.2);
+    border-radius: 0%;
     opacity: 1;
+    background-color: black;
   }
   &.WallTransition {
-    /* opacity: 1; */
-    transition: transform 250ms ease-in-out;
-    transform: scale(1.2);
+    clip-path: polygon(12% 12%, 60% 0%, 100% 40%, 88% 88%, 40% 100%, 0 60%);
+    animation: ${WallAnimation} ${(props) => props.Speed}ms ease-in-out forwards;
     opacity: 1;
+    background-color: black;
   }
   &.ExploredNode {
     /* background-color: #278ea5; */
-    background-color: #219897;
+    &.dark {
+      background-color: #219897;
+    }
+    &.light {
+      background-color: #b83b5e;
+    }
     transform: scale(1);
     opacity: 1;
   }
   &.ExploredNodeTransition {
     /* opacity: 1; */
-    animation: ${Explor} 500ms ease-out forwards;
+    &.dark {
+      animation: ${ExplorDark} ${(props) => props.Speed + 400}ms ease-in-out
+        forwards;
+    }
+    &.light {
+      animation: ${ExplorLight} ${(props) => props.Speed + 400}ms ease-in-out
+        forwards;
+    }
+
     /* background-color: #1e5f74; */
     /* transform: scale(1); */
   }
+  &.PathNode {
+    /* background-color: #278ea5; */
+    &.dark {
+      background-color: #f9d276;
+    }
+    &.light {
+      background-color: #3282b8;
+    }
+    transform: scale(1);
+    opacity: 1;
+  }
+  &.PathNodeTransition {
+    /* opacity: 1; */
+    transform: scale(0);
+
+    transition: all ${(props) => props.Speed + 400}ms ease-in-out;
+    &.dark {
+      background-color: #f9d276;
+    }
+    &.light {
+      background-color: #3282b8;
+    }
+
+    transform: scale(1);
+    opacity: 1;
+  }
 `;
+//  animation: ${PathLight} ${(props) => props.Speed + 400}ms ease-in-out
+// forwards;
+// /animation: ${PathDark} ${(props) => props.Speed + 400}ms ease-in-out
+//   forwards;
 const target = keyframes`
 0%{height: 10%;
     width: 10%;}
@@ -177,18 +280,30 @@ const Innerdiv = styled.div`
     transform: rotate(-45deg);
   }
 `;
-const Hex = ({ s, x, y, count, val, width }) => {
-  const AnimationRef = useRef();
-  const light = useSelector((state) => state.theme.light);
-  const dispatch = useDispatch();
+const Hex = ({ s, x, y, count, val, Ref }) => {
+  // const AnimationRef = useRef();
+
+  const light = useSelector((state) => state.theme.light, shallowEqual);
+  const Speed = useSelector(
+    (state) => state.theme.animationSpeed,
+    shallowEqual
+  );
   let ValClassName = "";
   let ThemeClassName = light ? "light " : "dark ";
+
+  const AnimationRef = useRef(null);
+  const InnerDivRef = useRef(null);
   useEffect(() => {
     let ele = document.getElementById(count).style;
     ele.height = `${s}px`;
     ele.width = `${s}px`;
     ele.top = `${y}px`;
     ele.left = `${x}px`;
+
+    // Ref.current = {
+    //   AnimationRef: AnimationRef.current,
+    //   InnerDivRef: InnerDivRef.current,
+    // };
   }, []);
 
   // Determine ClassName for the node
@@ -217,6 +332,12 @@ const Hex = ({ s, x, y, count, val, width }) => {
     case NoNode:
       ValClassName = "NoNode";
       break;
+    case PathNode:
+      ValClassName = "PathNode";
+      break;
+    case PathNodeTransition:
+      ValClassName = "PathNodeTransition";
+      break;
     default:
       ValClassName = "";
   }
@@ -226,13 +347,11 @@ const Hex = ({ s, x, y, count, val, width }) => {
       <OuterDiv unselectable="on">
         <AnimationDiv
           className={`${ValClassName} ${ThemeClassName}`}
-          ref={AnimationRef}
           light
-          val={val}
+          Speed={Speed}
         ></AnimationDiv>
         <Innerdiv
           unselectable="on"
-          val={val}
           className={`${ValClassName} ${ThemeClassName}`}
         >
           <div
@@ -255,6 +374,7 @@ const Hex = ({ s, x, y, count, val, width }) => {
     </Container>
   );
 };
+
 const useEqual = (prevProps, nextProps) => {
   const preval = prevProps?.val;
   const nextval = nextProps?.val;
@@ -268,4 +388,5 @@ const useEqual = (prevProps, nextProps) => {
 };
 // export default Hex;
 export default React.memo(Hex, useEqual);
+// export default React.memo(Hex);
 // export default useClick;

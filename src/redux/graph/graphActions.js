@@ -13,6 +13,12 @@ import {
   Fix_AS_Explored,
   Set_All_As_Explored,
   Fix_All_As_Explored,
+  Set_As_Path,
+  Fix_As_Path,
+  Fix_All_As_Path,
+  Set_All_As_Path,
+  Clean_Grid,
+  Set_Grid,
 } from "./graphTypes";
 
 export const SetAsWall = ({ i, j }) => {
@@ -78,7 +84,17 @@ export const ClearGrid = () => {
     type: Clear_Grid,
   };
 };
-
+export const CleanGrid = () => {
+  return {
+    type: Clean_Grid,
+  };
+};
+export const SetGrid = (grid) => {
+  return {
+    type: Set_Grid,
+    payload: grid,
+  };
+};
 export const SetAsExplored = ({ i, j }) => {
   return {
     type: Set_AS_Explored,
@@ -102,5 +118,30 @@ export const FixAsExplored = ({ i, j }) => {
   return {
     type: Fix_AS_Explored,
     payload: { i, j },
+  };
+};
+export const SetAsPath = ({ i, j }) => {
+  return {
+    type: Set_As_Path,
+    payload: { i, j },
+  };
+};
+export const FixAsPath = ({ i, j }) => {
+  return {
+    type: Fix_As_Path,
+    payload: { i, j },
+  };
+};
+export const FixAllAsPath = (nodes) => {
+  return {
+    type: Fix_All_As_Path,
+    payload: nodes,
+  };
+};
+
+export const SetALLAsPath = (nodes) => {
+  return {
+    type: Set_All_As_Path,
+    payload: nodes,
   };
 };

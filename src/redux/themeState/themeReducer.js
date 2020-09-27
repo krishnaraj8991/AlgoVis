@@ -4,9 +4,10 @@ const { Switch } = require("@material-ui/core");
 const { flip, flip_Animation_State, Play_Pause } = require("./themeType");
 
 const initialState = {
-  light: false,
-  animation: false,
+  light: true,
+  animation: true,
   playpause: false,
+  animationSpeed: 300,
 };
 const ThemeReducer = (state = initialState, action) => {
   switch (action.type) {

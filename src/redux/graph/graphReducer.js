@@ -2,6 +2,8 @@ import {
   BlankNode,
   ExploredNode,
   ExploredNodeTransition,
+  PathNode,
+  PathNodeTransition,
   StartNode,
   TargetNode,
   Wall,
@@ -9,9 +11,12 @@ import {
 } from "./graphStates";
 
 import {
+  Clean_Grid,
   Clear_Grid,
   Fix_All_As_Explored,
+  Fix_All_As_Path,
   Fix_AS_Explored,
+  Fix_As_Path,
   Fix_AS_WALL,
   Move_Start_To,
   Move_Target_To,
@@ -19,13 +24,15 @@ import {
   Moving_Target,
   Remove_Wall,
   Set_All_As_Explored,
+  Set_All_As_Path,
   Set_AS_Explored,
+  Set_As_Path,
   Set_AS_WALL,
   Set_Boundarys,
+  Set_Grid,
   Set_Size,
 } from "./graphTypes";
-
-let DataSize = 40;
+let DataSize = 10;
 console.log("Initializing data", DataSize);
 const Generategraph = (Size) => {
   let ar = [];
@@ -40,11 +47,11 @@ const Generategraph = (Size) => {
     }
   }
   ar[1][1] = StartNode;
-  ar[ar.length - 1][ar.length - 1] = TargetNode;
+  ar[leng - 1][leng - 1] = TargetNode;
   return ar;
 };
 let ar = Generategraph(DataSize);
-
+// console.log(ar);
 // ar[3][3] = 6;
 console.log(DataSize);
 
@@ -63,20 +70,23 @@ const initialState = {
 const graphReducer = (state = initialState, action) => {
   switch (action.type) {
     case Set_AS_WALL: {
-      let graph = state.graph;
+      let newgraph = JSON.parse(JSON.stringify(state.graph));
       const { i, j } = action.payload;
-      if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
-        graph[i][j] = WallTransition;
+      if (newgraph[i][j] != StartNode && newgraph[i][j] != TargetNode) {
+        newgraph[i][j] = WallTransition;
         // graph[i][j] = ExploredNodeTransition;
+      } else {
+        return state;
       }
+
       return {
         ...state,
-        graph,
+        graph: newgraph,
       };
     }
 
     case Remove_Wall: {
-      let graph = state.graph;
+      let graph = { ...state.graph };
       const { i, j } = action.payload;
       const boundary = state.boundaryWalls;
       if (
@@ -92,16 +102,20 @@ const graphReducer = (state = initialState, action) => {
       };
     }
     case Fix_AS_WALL: {
-      let graph = state.graph;
+      let newgraph = JSON.parse(JSON.stringify(state.graph));
+
       const { i, j } = action.payload;
-      if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
-        graph[i][j] = Wall;
+      if (newgraph[i][j] != StartNode && newgraph[i][j] != TargetNode) {
+        newgraph[i][j] = Wall;
         // graph[i][j] = ExploredNode;
+        // console.log(neState == state, "state equality");
+        return {
+          ...state,
+          graph: newgraph,
+        };
+      } else {
+        return state;
       }
-      return {
-        ...state,
-        graph,
-      };
     }
 
     case Moving_Start: {
@@ -117,7 +131,7 @@ const graphReducer = (state = initialState, action) => {
       };
     }
     case Move_Start_To: {
-      let graph = state.graph;
+      let graph = JSON.parse(JSON.stringify(state.graph));
       const { i: prevI, j: prevJ } = state.start;
       const { i, j } = action.payload;
       const boundaryWalls = state.boundaryWalls;
@@ -136,7 +150,7 @@ const graphReducer = (state = initialState, action) => {
       return state;
     }
     case Move_Target_To: {
-      let graph = state.graph;
+      let graph = JSON.parse(JSON.stringify(state.graph));
       const { i: prevI, j: prevJ } = state.target;
       const { i, j } = action.payload;
       // const { i: startI, j: startJ } = state.start;
@@ -156,7 +170,7 @@ const graphReducer = (state = initialState, action) => {
     }
 
     case Set_Boundarys: {
-      let graph = state.graph;
+      let graph = JSON.parse(JSON.stringify(state.graph));
       const boundary = state.boundaryWalls;
       for (let i = 0; i < state.size; i++) {
         graph[0][i] = boundary ? BlankNode : Wall;
@@ -169,7 +183,7 @@ const graphReducer = (state = initialState, action) => {
       };
     }
     case Set_Size: {
-      const size = state.size;
+      const size = JSON.parse(JSON.stringify(state.graph));
       if (size != action.payload) {
         let ar = Generategraph(action.payload);
         return {
@@ -187,10 +201,10 @@ const graphReducer = (state = initialState, action) => {
     }
     case Clear_Grid: {
       const size = state.size;
-      let ar = Generategraph(size);
+      let graph = Generategraph(size);
       return {
         ...state,
-        graph: [...ar],
+        graph: graph,
         boundaryWalls: true,
         start: { i: 1, j: 1 },
         target: { i: ar.length - 1, j: ar.length - 1 },
@@ -199,9 +213,30 @@ const graphReducer = (state = initialState, action) => {
         beforeTarget: BlankNode,
       };
     }
+    case Clean_Grid: {
+      let graph = JSON.parse(JSON.stringify(state.graph));
+      for (let i = 0; i < graph.length; i++) {
+        for (let j = 0; j < graph.length; j++) {
+          if (graph[i][j] == ExploredNode || graph[i][j] == PathNode) {
+            graph[i][j] = BlankNode;
+          }
+        }
+      }
 
+      return {
+        ...state,
+        graph: graph,
+      };
+    }
+    case Set_Grid: {
+      const grid = JSON.parse(JSON.stringify(action.payload));
+      return {
+        ...state,
+        graph: grid,
+      };
+    }
     case Set_AS_Explored: {
-      let graph = state.graph;
+      let graph = JSON.parse(JSON.stringify(state.graph));
       const { i, j } = action.payload;
       if (!state.boundaryWalls || !(i == 0 || j == 0)) {
         if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
@@ -215,7 +250,7 @@ const graphReducer = (state = initialState, action) => {
       };
     }
     case Fix_AS_Explored: {
-      let graph = state.graph;
+      let graph = JSON.parse(JSON.stringify(state.graph));
       const { i, j } = action.payload;
       if (!state.boundaryWalls || !(i == 0 || j == 0)) {
         if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
@@ -229,8 +264,7 @@ const graphReducer = (state = initialState, action) => {
       };
     }
     case Set_All_As_Explored: {
-      let graph = state.graph;
-
+      let graph = JSON.parse(JSON.stringify(state.graph));
       const arr = action.payload;
       arr.map(({ i, j }) => {
         if (!state.boundaryWalls || !(i == 0 || j == 0)) {
@@ -246,7 +280,7 @@ const graphReducer = (state = initialState, action) => {
       };
     }
     case Fix_All_As_Explored: {
-      let graph = state.graph;
+      let graph = JSON.parse(JSON.stringify(state.graph));
       const arr = action.payload;
       arr.map(({ i, j }) => {
         if (!state.boundaryWalls || !(i == 0 || j == 0)) {
@@ -256,11 +290,75 @@ const graphReducer = (state = initialState, action) => {
           }
         }
       });
+
       return {
         ...state,
         graph,
       };
     }
+
+    case Set_As_Path: {
+      let graph = JSON.parse(JSON.stringify(state.graph));
+      const { i, j } = action.payload;
+      if (!state.boundaryWalls || !(i == 0 || j == 0)) {
+        if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
+          graph[i][j] = PathNodeTransition;
+          // graph[i][j] = ExploredNodeTransition;
+        }
+      }
+      return {
+        ...state,
+        graph,
+      };
+    }
+    case Fix_As_Path: {
+      let graph = JSON.parse(JSON.stringify(state.graph));
+      const { i, j } = action.payload;
+      if (!state.boundaryWalls || !(i == 0 || j == 0)) {
+        if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
+          graph[i][j] = PathNode;
+          // graph[i][j] = ExploredNodeTransition;
+        }
+      }
+      return {
+        ...state,
+        graph,
+      };
+    }
+    case Set_All_As_Path: {
+      let graph = JSON.parse(JSON.stringify(state.graph));
+      const arr = action.payload;
+      arr.map(({ i, j }) => {
+        if (!state.boundaryWalls || !(i == 0 || j == 0)) {
+          if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
+            graph[i][j] = PathNodeTransition;
+            // graph[i][j] = ExploredNodeTransition;
+          }
+        }
+      });
+      return {
+        ...state,
+        graph,
+      };
+    }
+    case Fix_All_As_Path: {
+      let graph = JSON.parse(JSON.stringify(state.graph));
+      const arr = action.payload;
+      arr.map(({ i, j }) => {
+        if (!state.boundaryWalls || !(i == 0 || j == 0)) {
+          if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
+            graph[i][j] = PathNode;
+            // graph[i][j] = ExploredNodeTransition;
+          }
+        }
+      });
+
+      return {
+        ...state,
+        graph,
+      };
+    }
+
     default:
       return state;
   }

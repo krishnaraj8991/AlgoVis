@@ -60,13 +60,8 @@ const Space = styled.div`
   margin-bottom: auto;
 `;
 
-const workerInstance = new WebWorker(workerCom);
 export const ReduxContainer = () => {
-  const dispatch = useDispatch();
-  const state = useSelector((state) => state);
-  const PlaypauseState = useSelector((state) => state.theme.playpause);
   const [lightTheme, setLighttheme] = useState(false);
-  const lastarr = useRef(null);
   const algos = [
     {
       value: "A* Search",
@@ -78,64 +73,6 @@ export const ReduxContainer = () => {
     { value: "Depth-first Search", onClick: () => {} },
   ];
 
-  useEffect(() => {
-    workerInstance.addEventListener("message", (action) => {
-      const { type, payload } = action.data;
-      switch (type) {
-        case "Hello": {
-          console.log(payload);
-          break;
-        }
-        case ConsoleLog: {
-          console.log(payload);
-          break;
-        }
-        case CheckState: {
-          const { msg, state } = JSON.parse(payload);
-          console.log(state);
-          break;
-        }
-        case SetExploredNodes: {
-          const { arr, prevarr } = JSON.parse(payload);
-          dispatch(SetAllAsExplored(arr));
-          dispatch(FixAllAsExplored(prevarr));
-          lastarr.current = arr;
-          break;
-        }
-        case Stop: {
-          console.log("lastarr", lastarr);
-          if (lastarr.current != null) {
-            dispatch(FixAllAsExplored(lastarr.current));
-          }
-          break;
-        }
-        default:
-          break;
-      }
-    });
-    console.log("Hello Worker");
-    workerInstance.postMessage({
-      type: ConsoleLog,
-      payload: "Hello from Worker",
-    });
-    workerInstance.postMessage({
-      type: CurrentState,
-      payload: JSON.stringify(state),
-    });
-  }, []);
-  useEffect(() => {
-    if (PlaypauseState) {
-      workerInstance.postMessage({
-        type: Start,
-        payload: "",
-      });
-    } else {
-      workerInstance.postMessage({
-        type: Stop,
-        payload: "",
-      });
-    }
-  }, [PlaypauseState]);
   return (
     <>
       <BackGround>

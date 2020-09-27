@@ -137,7 +137,9 @@ const GridSize = () => {
     clearInterval(Interval.current);
     clearInterval(Interval2.current);
     speed.current = 2;
-    dispatch(SetSize(Size + offset));
+    if (offset != 0) {
+      dispatch(SetSize(Size + offset));
+    }
     SetoffSet(0);
   };
   const MouseUpHandler = () => {
@@ -145,7 +147,10 @@ const GridSize = () => {
     clearInterval(Interval.current);
     clearInterval(Interval2.current);
     speed.current = 2;
-    dispatch(SetSize(Size + offset));
+    if (offset != 0) {
+      dispatch(SetSize(Size + offset));
+    }
+    // dispatch(SetSize(Size + offset));
     SetoffSet(0);
   };
   return (
