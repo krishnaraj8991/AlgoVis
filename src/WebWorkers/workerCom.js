@@ -28,7 +28,9 @@ export default function Worker() {
   const PathNode = 7;
   const PathNodeTransition = 8;
   // Portal Node
-  const PortalNode = 9;
+  const PortalNode1 = 9;
+  const PortalNode2 = 10;
+
   // NoNode
   const NoNode = -1;
   // ----------------------------------------------------------------
@@ -36,6 +38,8 @@ export default function Worker() {
   // State
   let state;
   let interval;
+  let animate = false;
+  let AlgoStartTime = null;
   // ClearGrid
   const CleanGrid = () => {
     const size = state.graph.size;
@@ -51,8 +55,59 @@ export default function Worker() {
       }
     }
   };
+  // sleep for animation
+  function sleep(milliseconds) {
+    const date = Date.now();
+    let currentDate = null;
+    do {
+      currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
+  }
+  const pause = () => {
+    const currenttime = Date.now();
+    if (currenttime - AlgoStartTime < 20000) {
+      sleep(100);
+    } else if (currenttime - AlgoStartTime < 40000) {
+      sleep(10);
+    }
+  };
+  // Shuffel
+  function shuffle(array) {
+    var currentIndex = array.length,
+      temporaryValue,
+      randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+  }
   // returns an array of 6 neighbours;
   const GetNeighbours = ({ i, j, length }) => {
+    const portal1 = state.graph.portal1;
+    const portal2 = state.graph.portal2;
+    const portalavailable = state.graph.ActivePortal;
+    if (portalavailable) {
+      if (i == portal1.i && j == portal1.j) {
+        i = portal2.i;
+        j = portal2.j;
+        // console.log(CurrentNode, "portal");
+      } else if (i == portal2.i && j == portal2.j) {
+        // console.log({ i, j }, "this");
+        i = portal1.i;
+        j = portal1.j;
+        // console.log({ i, j }, "to this");
+      }
+    }
     let neighbours = [];
     neighbours.push({ i, j: (j + length - 1) % length });
     neighbours.push({ i, j: (j + 1) % length });
@@ -82,62 +137,158 @@ export default function Worker() {
     return neighbours;
   };
 
-  // RecersiveSearch for DFS
-  const RecersiveSearch = (CurrentNode, ExploredNodes, graph) => {
-    if (
-      CurrentNode.i == state.graph.target.i &&
-      CurrentNode.j == state.graph.target.j
-    ) {
-      return [CurrentNode];
-    }
-
-    ExploredNodes.push(CurrentNode);
-    if (
-      graph[CurrentNode.i][CurrentNode.j] != StartNode &&
-      graph[CurrentNode.i][CurrentNode.j] != TargetNode
-    ) {
-      graph[CurrentNode.i][CurrentNode.j] = ExploredNode;
-    }
-    const neighbours = GetNeighbours({
-      ...CurrentNode,
-      length: state.graph.size,
-    });
-    neighbours.sort(() => Math.random - 0.5);
-    // let path = [];
-    for (let k = 0; k < 6; k++) {
-      const { i, j } = neighbours[k];
-      if (graph[i][j] != ExploredNode && graph[i][j] != Wall) {
-        const path = [...RecersiveSearch(neighbours[k], ExploredNodes, graph)];
-        if (path.length != 0) {
-          return [CurrentNode, ...path];
-        }
-      }
-    }
-    return [];
-    // const path = neighbours.map((node) => {
-    //   // console.log(i, j);
-    // });
-    // return path;
-  };
-  // DepthFirstSearch Algo
-  const dephtFirstSearch = () => {
+  // Iterative Version of DFS
+  const DepthFirstSearchIterative = () => {
     const graph = state.graph.graph;
     const length = state.graph.size;
-    console.log(length);
-    const StartNode = state.graph.start;
+    const start = state.graph.start;
     const targetNode = state.graph.target;
-    let ExploredNodes = [];
-    const Path = [...RecersiveSearch(StartNode, ExploredNodes, graph)];
+    let stack = [start];
+    let skip = false;
+    while (stack.length != 0) {
+      skip = false;
+      let CurrentNode = stack[stack.length - 1];
+
+      // console.log("Iternative dfs", StartNode);
+
+      if (CurrentNode.i == targetNode.i && CurrentNode.j == targetNode.j) {
+        return {
+          FinalPath: stack,
+          isFinalPath: stack.length != 0,
+        };
+      }
+      const portal1 = state.graph.portal1;
+      const portal2 = state.graph.portal2;
+      if (CurrentNode.i == portal1.i && CurrentNode.j == portal1.j) {
+        CurrentNode.i = portal2.i;
+        CurrentNode.j = portal2.j;
+        console.log(CurrentNode, "portal");
+      }
+      if (CurrentNode.i == portal2.i && CurrentNode.j == portal2.j) {
+        CurrentNode.i = portal1.i;
+        CurrentNode.j = portal1.j;
+        console.log(CurrentNode, "portal2");
+      }
+
+      let neighbours = GetNeighbours({ ...CurrentNode, length });
+      neighbours = shuffle(neighbours);
+
+      neighbours.forEach((node, idx) => {
+        const { i, j } = node;
+        // console.log(node);
+        if (!skip) {
+          if (graph[i][j] != ExploredNode && graph[i][j] != Wall) {
+            if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
+              graph[i][j] = ExploredNode;
+            }
+            stack.push(node);
+            skip = true;
+            if (animate) {
+              let arr = [node];
+              postMessage({
+                type: SetExploredNodes,
+                payload: JSON.stringify({ arr }),
+              });
+
+              pause();
+            }
+          }
+        }
+      });
+      if (!skip) {
+        stack.pop();
+      }
+    }
     return {
-      ExploredNodes: ExploredNodes,
-      FinalPath: Path,
-      isFinalPath: Path.length != 0,
+      FinalPath: stack,
+      isFinalPath: stack.length != 0,
     };
+  };
+  const BreathFirstSearch = () => {
+    const graph = state.graph.graph;
+    const distanceMap = [];
+    const length = state.graph.size;
+
+    // distanceMap.map((row) => {
+    //   return row.map((cell) => -1);
+    // });
+    for (let i = 0; i < length; i++) {
+      let row = [];
+      for (let j = 0; j < length; j++) {
+        row.push({ i: -1, j: -1 });
+      }
+      distanceMap.push([...row]);
+    }
+    const start = state.graph.start;
+    const target = state.graph.target;
+    let Completed = false;
+    let queue = [start];
+    distanceMap[start.i][start.j] = start;
+    const portal1 = state.graph.portal1;
+    const portal2 = state.graph.portal2;
+
+    while (queue.length != 0 && !Completed) {
+      // console.log(queue);
+
+      let CurrentNode = queue.shift();
+
+      if (CurrentNode.i == target.i && CurrentNode.j == target.j) {
+        Completed = true;
+      } else {
+        if (animate) {
+          let arr = [CurrentNode];
+          postMessage({
+            type: SetExploredNodes,
+            payload: JSON.stringify({ arr }),
+          });
+          pause();
+        }
+
+        const neighbours = GetNeighbours({ ...CurrentNode, length });
+        // console.log(neighbours);
+        neighbours.forEach(({ i, j }, idx) => {
+          if (graph[i][j] != ExploredNode && graph[i][j] != Wall) {
+            if (
+              graph[i][j] != StartNode &&
+              graph[i][j] != TargetNode &&
+              graph[i][j] != PortalNode1 &&
+              graph[i][j] != PortalNode2
+            ) {
+              graph[i][j] = ExploredNode;
+            }
+            if (distanceMap[i][j].i == -1) {
+              distanceMap[i][j] = CurrentNode;
+            }
+
+            queue.push({ i, j });
+          }
+        });
+      }
+    }
+    let CurrentNode = distanceMap[target.i][target.j];
+    let FinalPath = [];
+    // distance = distanceMap[CurrentNode.i][CurrentNode.j];
+    // console.log(distanceMap);
+    let Break = true;
+    let PreviousNode = { i: -1, j: -1 };
+    while (
+      !(CurrentNode.i == PreviousNode.i && CurrentNode.j == PreviousNode.j)
+    ) {
+      FinalPath.unshift(CurrentNode);
+      PreviousNode.i = CurrentNode.i;
+      PreviousNode.j = CurrentNode.j;
+      CurrentNode = distanceMap[CurrentNode.i][CurrentNode.j];
+    }
+
+    return { FinalPath, isFinalPath: FinalPath.length != 0 };
   };
   const ExploreGraphAnimate = () => {
     const graph = state.graph.graph;
     const length = state.graph.size;
-
+    AlgoStartTime = Date.now();
+    const portal1 = state.graph.portal1;
+    const portal2 = state.graph.portal2;
+    console.log(portal1, portal2);
     // const neighbours = GetNeighbours({ ...state.graph.start, length });
     // neighbours.map((node) => {
     //   let arr = [node];
@@ -147,25 +298,20 @@ export default function Worker() {
     //   });
     // });
     // postMessage({ type: Stop, payload: "Stop Algo" });
-    const { ExploredNodes, FinalPath, isFinalPath } = dephtFirstSearch();
+    // const printer = () => {
+    //   console.log("requested animation Frame");
+    // };
+    // requestAnimationFrame(printer);
+    animate = true;
+    // const { FinalPath, isFinalPath } = DepthFirstSearchIterative();
+    const { FinalPath, isFinalPath } = BreathFirstSearch();
+    animate = false;
     let index = 0;
     let flag = 0;
     interval = setInterval(() => {
       let arr = [];
       if (flag == 0) {
-        if (index < ExploredNodes.length) {
-          arr.push(ExploredNodes[index]);
-          postMessage({
-            type: SetExploredNodes,
-            payload: JSON.stringify({ arr }),
-          });
-        } else {
-          flag++;
-          index = 0;
-        }
-      } else if (flag == 1) {
         if (isFinalPath) {
-          // console.log("Sending Final path", FinalPath.length);
           if (index < FinalPath.length) {
             arr.push(FinalPath[index]);
             postMessage({
@@ -187,69 +333,25 @@ export default function Worker() {
   const ExploreGraphInstantaly = () => {
     const graph = state.graph.graph;
     const length = state.graph.size;
-
-    // const neighbours = GetNeighbours({ ...state.graph.start, length });
-    // neighbours.map((node) => {
-    //   let arr = [node];
-    //   postMessage({
-    //     type: SetExploredNodes,
-    //     payload: JSON.stringify({ arr }),
-    //   });
-    // });
-    // postMessage({ type: Stop, payload: "Stop Algo" });
-
-    const { ExploredNodes, FinalPath, isFinalPath } = dephtFirstSearch();
-    // console.log("FinalPath", FinalPath);
-    ExploredNodes.map(({ i, j }) => {
-      if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
-        graph[i][j] = ExploredNode;
-      }
-    });
-
-    // postMessage({
-    //   type: FixExploredNodes,
-    //   payload: JSON.stringify({ arr: ExploredNodes }),
-    // });
+    // const { FinalPath, isFinalPath } = DepthFirstSearchIterative();
+    const { FinalPath, isFinalPath } = BreathFirstSearch();
     if (isFinalPath) {
       FinalPath.map(({ i, j }) => {
-        if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
+        if (
+          graph[i][j] != StartNode &&
+          graph[i][j] != TargetNode &&
+          graph[i][j] != PortalNode1 &&
+          graph[i][j] != PortalNode2
+        ) {
           graph[i][j] = PathNode;
         }
       });
-      // postMessage({
-      //   type: FixFinalPath,
-      //   payload: JSON.stringify({ arr: FinalPath }),
-      // });
     }
 
     postMessage({
       type: FixGrid,
       payload: JSON.stringify(graph),
     });
-
-    // let i = 2;
-    // let j = 2;
-    // let x = 0;
-    // let arr = [];
-    // while (i < graph.length) {
-    //   if (state.graph.graph[x][j] != 1) {
-    //     arr.push({ i: x, j });
-    //   }
-    //   if (state.graph.graph[i][x] != 1) {
-    //     arr.push({ i, j: x });
-    //   }
-    //   if (x == i) {
-    //     i += 1;
-    //     j += 1;
-    //     x = 0;
-    //   } else {
-    //     x++;
-    //   }
-    // }
-    // postMessage({
-    //   type: FixExploredNodes,
-    //   payload: JSON.stringify({ arr }),
-    // });
   };
 
   const Bridge = (action) => {
@@ -266,12 +368,23 @@ export default function Worker() {
       case Start:
         state = JSON.parse(payload);
         CleanGrid();
+        postMessage({
+          type: FixGrid,
+          payload: JSON.stringify(state.graph.graph),
+        });
         postMessage({ type: ConsoleLog, payload: "Started Algo" });
         // ClearGrid();
         ExploreGraphAnimate();
         return;
       case InstantAlgo:
         state = JSON.parse(payload);
+        state.graph.graph[state.graph.start.i][state.graph.start.j] = StartNode;
+        state.graph.graph[state.graph.target.i][
+          state.graph.target.j
+        ] = TargetNode;
+        console.log(
+          state.graph.graph[state.graph.target.i][state.graph.target.j]
+        );
         postMessage({ type: ConsoleLog, payload: "Instant Algo Called" });
         CleanGrid();
         ExploreGraphInstantaly();
@@ -280,6 +393,7 @@ export default function Worker() {
         // postMessage({ type: Finished, payload: "Finished Algo" });
         return;
       case Stop:
+        animate = false;
         clearInterval(interval);
         postMessage({ type: ConsoleLog, payload: "Stop Algo" });
         postMessage({ type: Stop, payload: "Stop Algo" });

@@ -17,7 +17,8 @@ export const PathNode = 7;
 export const PathNodeTransition = 8;
 
 // Portal Node
-export const PortalNode = 9;
+export const PortalNode1 = 9;
+export const PortalNode2 = 10;
 
 // NoNode
 export const NoNode = -1;

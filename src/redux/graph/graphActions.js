@@ -19,6 +19,11 @@ import {
   Set_All_As_Path,
   Clean_Grid,
   Set_Grid,
+  ActivePortal,
+  Moving_Portal1,
+  Moving_Portal2,
+  Move_Portal1_To,
+  Move_Portal2_To,
 } from "./graphTypes";
 
 export const SetAsWall = ({ i, j }) => {
@@ -143,5 +148,37 @@ export const SetALLAsPath = (nodes) => {
   return {
     type: Set_All_As_Path,
     payload: nodes,
+  };
+};
+
+// Portal Actions
+export const SetActivePortal = () => {
+  return {
+    type: ActivePortal,
+  };
+};
+export const MoveingPortal1 = (value) => {
+  return {
+    type: Moving_Portal1,
+    payload: value,
+  };
+};
+export const MoveingPortal2 = (value) => {
+  return {
+    type: Moving_Portal2,
+    payload: value,
+  };
+};
+export const MovePortal1To = ({ i, j }) => {
+  return {
+    type: Move_Portal1_To,
+    payload: { i, j },
+  };
+};
+
+export const MovePortal2To = ({ i, j }) => {
+  return {
+    type: Move_Portal2_To,
+    payload: { i, j },
   };
 };

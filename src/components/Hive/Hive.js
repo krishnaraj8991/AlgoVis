@@ -7,7 +7,7 @@ import styled, { css } from "styled-components";
 // import cursorLeft from "../../_Icons/Cursor/Filled/cursor-AutoScroll-left.png";
 // import cursorRight from "../../_Icons/Cursor/Filled/cursor-AutoScroll-right.png";
 
-import { useDispatch, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { SetAsWall } from "../../redux/graph/graphActions";
 // import MemorisexHex from "./MemorisexHex";
 
@@ -23,6 +23,7 @@ import {
   cursorUpRight,
 } from "../../_Icons/Cursor/Filled";
 import Loading from "../Loading";
+import { Start } from "../../WebWorkers/MessageTypes";
 const MemorisexHex = React.lazy(() => import("./MemorisexHex"));
 
 // import Path from "./Path";
@@ -151,6 +152,7 @@ export default function Hive(props) {
   const [cursor, setCursor] = useState("auto");
   // let deltax = 0;
   // let deltay = 0;
+  const Limits = useRef({ Ilimit: 0, Jlimit: 0, deltax: 0, deltay: 0 });
   let jLimit = 22;
   let iLimit = 8;
 
@@ -159,6 +161,14 @@ export default function Hive(props) {
   let DataSize1 = useRef(0);
   DataSize1.current = useSelector((state) => state.graph.size);
   const dispatch = useDispatch();
+  const focusNode = useRef({ i: 0, j: 0 });
+  focusNode.current = useSelector((state) => state.graph.focusNode);
+  const animation = useRef(null);
+  animation.current = useSelector(
+    (state) => state.theme.animation,
+    shallowEqual
+  );
+  const Start = useRef(true);
 
   useEffect(() => {
     RefisAutoScroll = false;
@@ -166,6 +176,7 @@ export default function Hive(props) {
     StartPos = { x: 0, y: 0 };
   }, []);
 
+  // Initializing Hex Grid
   useEffect(() => {
     console.log(width.current, window.innerWidth);
     var wh = window.innerWidth;
@@ -188,6 +199,8 @@ export default function Hive(props) {
       // iLimit = parseInt(h / (((hexsize - 90) / 60) * 46 + 25) + 4);
       jLimit = w / 40;
       iLimit = h / 45;
+      Limits.current.Ilimit = iLimit;
+      Limits.current.Jlimit = jLimit;
       for (let i = 0; i < iLimit; i++) {
         let tempup = [];
         for (let j = 0; j < jLimit; j++) {
@@ -225,10 +238,6 @@ export default function Hive(props) {
     let DataSize = DataSize1.current;
     setDelta({ x: DataSize * 5 - 5, y: DataSize * 5 - 5 });
   }, [DataSize1.current]);
-  useEffect(() => {
-    // console.log(delta);
-    // let DataSize = size;
-  }, [delta]);
 
   const frameScroll = (deltax, deltay, DataSize) => {
     let fram = document.getElementById("hive");
@@ -456,8 +465,54 @@ export default function Hive(props) {
 
     frameScroll(deltax / 5, deltay / 5, DataSize1.current);
   };
+  const BringToCenter = ({ Targeti, Targetj }) => {
+    let Limit = Limits.current;
+    let Currenti =
+      Math.floor(Limit.Ilimit / 2 + Limit.deltay - 1) % DataSize1.current;
+    let Currentj =
+      Math.floor((Limit.Jlimit * 1) / 3 + Limit.deltax) % DataSize1.current;
+    // console.log("shifting focus", Currenti, Currentj, Targeti, Targetj);
+    if (
+      !(Targeti - 2 < Currenti && Currenti < Targeti + 2) ||
+      !(Targetj - 2 < Currentj && Currentj < Targetj + 2)
+    ) {
+      // console.log("Current Center=", { Currenti, Currentj });
+      let deltax = 0;
+      let deltay = 0;
+      // Need Update
+      if (Currentj > Targetj) {
+        deltax = -150;
+      } else if (Currentj < Targetj) {
+        deltax = +150;
+      }
+      if (Currenti > Targeti) {
+        deltay = -150;
+      } else if (Currenti < Targeti) {
+        deltay = +150;
+      }
 
+      frameScroll(deltax / 3, deltay / 3, DataSize1.current);
+      window.requestAnimationFrame(() => {
+        // BringToCenter({ Targeti, Targetj });
+        BringToCenter({
+          Targeti: focusNode.current.i,
+          Targetj: focusNode.current.j,
+        });
+      });
+    }
+    // Start.current = true;
+  };
   const logMousedown = (e) => {
+    if (e.shiftKey) {
+      // dispatch(FixAllAsPath(arr));
+      requestAnimationFrame(() => {
+        BringToCenter({
+          Targeti: focusNode.i,
+          Targetj: focusNode.j,
+        });
+      });
+      console.log(focusNode, "Changed Focus");
+    }
     if (e.button == 0) {
       LeftButtonDown.current = true;
       // console.log("left click");
@@ -518,7 +573,35 @@ export default function Hive(props) {
     //   setDelta((prev) => ({ ...prev, y: prev.y + DataSize - 2 }));
     // }
   };
+  useEffect(() => {
+    // let i =
+    //   Math.floor(Limits.current.Ilimit / 2 + delta.y - 1) % DataSize1.current;
+    // let j =
+    //   Math.floor(Limits.current.Jlimit + delta.x - 10) % DataSize1.current;
 
+    // let i =
+    //   Math.floor(Limits.current.Ilimit / 2 + delta.y - 1) % DataSize1.current;
+    // let j =
+    //   Math.floor((Limits.current.Jlimit * 1) / 3 + delta.x) % DataSize1.current;
+    // // console.log("shifting focus", Limits);
+    // console.log("Current Center=", { i, j });
+    Limits.current.deltax = delta.x;
+    Limits.current.deltay = delta.y;
+  }, [delta]);
+
+  useEffect(() => {
+    if (!animation.current && Start.current) {
+      // console.log(focusNode, "Changed Focus", animation.current);
+      Start.current = false;
+      requestAnimationFrame(() => {
+        BringToCenter({
+          Targeti: focusNode.i,
+          Targetj: focusNode.j,
+        });
+      });
+    }
+  }, [focusNode.current]);
+  // Setting up Listners
   useEffect(() => {
     console.log("Listener Added");
     window.addEventListener("mousedown", logMousedown);

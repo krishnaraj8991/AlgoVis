@@ -10,6 +10,10 @@ import {
   MoveTargetTo,
   SetAsExplored,
   FixAsExplored,
+  MoveingPortal1,
+  MoveingPortal2,
+  MovePortal1To,
+  MovePortal2To,
 } from "../../redux/graph/graphActions";
 import {
   BlankNode,
@@ -18,6 +22,8 @@ import {
   NoNode,
   PathNode,
   PathNodeTransition,
+  PortalNode1,
+  PortalNode2,
   StartNode,
   TargetNode,
   Wall,
@@ -41,6 +47,13 @@ function MemorisexHex(props) {
     }),
     shallowEqual
   );
+  let { movingPortal1, movingPortal2 } = useSelector(
+    (state) => ({
+      movingPortal1: state.graph.movingPortal1,
+      movingPortal2: state.graph.movingPortal2,
+    }),
+    shallowEqual
+  );
 
   const animation = useSelector((state) => state.theme.animation);
   const Speed = useSelector(
@@ -58,6 +71,10 @@ function MemorisexHex(props) {
       // console.log("movnig");
     } else if (movingTarget) {
       dispatch(MoveTargetTo({ i, j }));
+    } else if (movingPortal1) {
+      dispatch(MovePortal1To({ i, j }));
+    } else if (movingPortal2) {
+      dispatch(MovePortal2To({ i, j }));
     } else {
       if (
         val == BlankNode ||
@@ -99,10 +116,15 @@ function MemorisexHex(props) {
       if (val == StartNode) {
         console.log("moving start");
         dispatch(MoveingStart(true));
-      }
-      if (val == TargetNode) {
+      } else if (val == TargetNode) {
         console.log("moving target");
         dispatch(MoveingTarget(true));
+      } else if (val == PortalNode1) {
+        console.log("moving portal1");
+        dispatch(MoveingPortal1(true));
+      } else if (val == PortalNode2) {
+        console.log("moving portal2");
+        dispatch(MoveingPortal2(true));
       } else {
         EventHandler();
       }
@@ -117,6 +139,14 @@ function MemorisexHex(props) {
     if (movingTarget) {
       console.log("stoped moving");
       dispatch(MoveingTarget(false));
+    }
+    if (movingPortal1) {
+      console.log("stoped moving");
+      dispatch(MoveingPortal1(false));
+    }
+    if (movingPortal2) {
+      console.log("stoped moving");
+      dispatch(MoveingPortal2(false));
     }
   };
 

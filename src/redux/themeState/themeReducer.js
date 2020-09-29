@@ -7,7 +7,7 @@ const initialState = {
   light: true,
   animation: true,
   playpause: false,
-  animationSpeed: 300,
+  animationSpeed: 600,
 };
 const ThemeReducer = (state = initialState, action) => {
   switch (action.type) {

@@ -18,6 +18,7 @@ import {
   ClearGrid,
   FixAllAsExplored,
   FixAsExplored,
+  SetActivePortal,
   SetAllAsExplored,
   SetAsExplored,
 } from "./redux/graph/graphActions";
@@ -80,7 +81,12 @@ export const ReduxContainer = () => {
           <NevItem value={"Algorithms"}>
             <DropdownMenu items={algos}></DropdownMenu>
           </NevItem>
-          <NevItem value={"Portals"} />
+          <NevItem
+            value={"Portals"}
+            onClick={(dispatch) => {
+              dispatch(SetActivePortal());
+            }}
+          />
           <NevItem
             value={"ClearGrid"}
             onClick={(dispatch) => {

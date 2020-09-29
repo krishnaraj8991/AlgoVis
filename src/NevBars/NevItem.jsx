@@ -98,6 +98,7 @@ function NevItem(props) {
                 left: "0px",
                 height: "100%",
                 width: "100%",
+                zIndex: "-1",
                 backgroundColor: "transparent",
               }}
               onClick={() => {

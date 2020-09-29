@@ -68,7 +68,12 @@ function WorkerContainer() {
     target: state.graph.target,
   }));
   const Moving = useSelector((state) => {
-    return state.graph.movingStart || state.graph.movingTarget;
+    return (
+      state.graph.movingStart ||
+      state.graph.movingTarget ||
+      state.graph.movingPortal1 ||
+      state.graph.movingPortal2
+    );
   });
   const lastarr = useRef(null);
   useEffect(() => {
@@ -96,7 +101,7 @@ function WorkerContainer() {
             setTimeout(() => {
               dispatch(FixAllAsExplored(arr));
               // console.log("Fixed");
-            }, AnimationSpeed.current + 500);
+            }, AnimationSpeed.current + 100);
           } else {
             dispatch(FixAllAsExplored(arr));
           }
@@ -109,15 +114,14 @@ function WorkerContainer() {
           break;
         }
         case SetFinalPath: {
-          console.log("SetFinalPath called");
+          // console.log("SetFinalPath called");
           const { arr } = JSON.parse(payload);
-
           if (animation.current) {
             dispatch(SetALLAsPath(arr));
             setTimeout(() => {
               dispatch(FixAllAsPath(arr));
               // console.log("Fixed");
-            }, AnimationSpeed.current + 500);
+            }, AnimationSpeed.current + 100);
           } else {
             dispatch(FixAllAsPath(arr));
           }
@@ -136,11 +140,11 @@ function WorkerContainer() {
           break;
         }
         case Stop: {
-          console.log("lastarr", lastarr);
-          if (lastarr.current != null) {
-            dispatch(FixAllAsExplored(lastarr.current));
-            // dispatch(PlayPauseAction());
-          }
+          // console.log("lastarr", lastarr);
+          // if (lastarr.current != null) {
+          //   dispatch(FixAllAsExplored(lastarr.current));
+          //   // dispatch(PlayPauseAction());
+          // }
           break;
         }
         case Finished: {
