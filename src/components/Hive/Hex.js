@@ -243,10 +243,14 @@ const AnimationDiv = styled.div`
   &.ExploredNodeTransition {
     /* opacity: 1; */
     &.dark {
-      animation: ${ExplorDark} ${(props) => props.Speed}ms ease-in-out forwards;
+      /* animation: ${ExplorDark} ${(props) =>
+        props.Speed}ms ease-in-out forwards; */
+      animation: ${ExplorDark} 600ms ease-in-out forwards;
     }
     &.light {
-      animation: ${ExplorLight} ${(props) => props.Speed}ms ease-in-out forwards;
+      /* animation: ${ExplorLight} ${(props) =>
+        props.Speed}ms ease-in-out forwards; */
+      animation: ${ExplorLight} 600ms ease-in-out forwards;
     }
 
     /* background-color: #1e5f74; */
@@ -266,7 +270,9 @@ const AnimationDiv = styled.div`
   }
   &.PathNodeTransition {
     /* opacity: 1; */
-    transition: all ${(props) => props.Speed + 100}ms ease-in-out;
+    /* transition: all ${(props) => props.Speed + 100}ms ease-in-out; */
+    transition: all 700ms ease-in-out;
+
     &.dark {
       background-color: #f9d276;
     }

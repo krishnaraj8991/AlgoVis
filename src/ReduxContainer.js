@@ -32,6 +32,8 @@ import {
   Start,
   Stop,
 } from "./WebWorkers/MessageTypes";
+import { SetAlgo } from "./redux/themeState/themeActions";
+import { Astar, BFS, DFS } from "./redux/themeState/themeType";
 
 const Container = styled.div`
   position: relative;
@@ -63,15 +65,38 @@ const Space = styled.div`
 
 export const ReduxContainer = () => {
   const [lightTheme, setLighttheme] = useState(false);
+  const dispatch = useDispatch();
   const algos = [
     {
       value: "A* Search",
-      onClick: () => {},
+      onClick: () => {
+        dispatch(SetAlgo(Astar));
+      },
     },
-    { value: "Dijkstra's Algorithm", onClick: () => {} },
-    { value: "Greedy Best-first Search", onClick: () => {} },
-    { value: "Breadth-first Search", onClick: () => {} },
-    { value: "Depth-first Search", onClick: () => {} },
+    {
+      value: "Dijkstra's Algorithm",
+      onClick: () => {
+        dispatch(SetAlgo(BFS));
+      },
+    },
+    {
+      value: "Greedy Best-first Search",
+      onClick: () => {
+        dispatch(SetAlgo(Astar));
+      },
+    },
+    {
+      value: "Breadth-first Search",
+      onClick: () => {
+        dispatch(SetAlgo(BFS));
+      },
+    },
+    {
+      value: "Depth-first Search",
+      onClick: () => {
+        dispatch(SetAlgo(DFS));
+      },
+    },
   ];
 
   return (

@@ -1,3 +1,5 @@
+import { Switch } from "@material-ui/core";
+
 export default function Worker() {
   // MessageType for Workers
   const CurrentState = "CurrentState";
@@ -157,19 +159,6 @@ export default function Worker() {
           isFinalPath: stack.length != 0,
         };
       }
-      const portal1 = state.graph.portal1;
-      const portal2 = state.graph.portal2;
-      if (CurrentNode.i == portal1.i && CurrentNode.j == portal1.j) {
-        CurrentNode.i = portal2.i;
-        CurrentNode.j = portal2.j;
-        console.log(CurrentNode, "portal");
-      }
-      if (CurrentNode.i == portal2.i && CurrentNode.j == portal2.j) {
-        CurrentNode.i = portal1.i;
-        CurrentNode.j = portal1.j;
-        console.log(CurrentNode, "portal2");
-      }
-
       let neighbours = GetNeighbours({ ...CurrentNode, length });
       neighbours = shuffle(neighbours);
 
@@ -178,7 +167,12 @@ export default function Worker() {
         // console.log(node);
         if (!skip) {
           if (graph[i][j] != ExploredNode && graph[i][j] != Wall) {
-            if (graph[i][j] != StartNode && graph[i][j] != TargetNode) {
+            if (
+              graph[i][j] != StartNode &&
+              graph[i][j] != TargetNode &&
+              graph[i][j] != PortalNode1 &&
+              graph[i][j] != PortalNode2
+            ) {
               graph[i][j] = ExploredNode;
             }
             stack.push(node);
@@ -282,29 +276,155 @@ export default function Worker() {
 
     return { FinalPath, isFinalPath: FinalPath.length != 0 };
   };
+
+  const GetDistance = ({ i, j }) => {
+    const target = state.graph.target;
+    const start = state.graph.start;
+    const fh = Math.abs(start.i - i) + Math.abs(start.j - j);
+    const boundary = state.graph.boundary;
+    const size = state.graph.size;
+    // const fh = 0;
+    let gh = Math.sqrt((target.i - i) ** 2 + (target.j - j) ** 2);
+    let othergh = -1;
+    if (!boundary) {
+      othergh = Math.sqrt(
+        (target.i - i + size) ** 2 + (target.j - j + size) ** 2
+      );
+      // console.log(gh, othergh);
+      gh = Math.min(gh, othergh);
+    }
+    return fh + gh * 2;
+  };
+  const MinhuristicValue = (queue) => {
+    let min = -1;
+    let minNode = { i: 0, j: 0 };
+    queue.forEach((node) => {
+      let distance = GetDistance(node);
+      if (distance < min || min == -1) {
+        min = distance;
+        minNode = node;
+      }
+    });
+    return minNode;
+  };
+  const Astart = () => {
+    const graph = state.graph.graph;
+    const distanceMap = [];
+    const length = state.graph.size;
+
+    // distanceMap.map((row) => {
+    //   return row.map((cell) => -1);
+    // });
+    for (let i = 0; i < length; i++) {
+      let row = [];
+      for (let j = 0; j < length; j++) {
+        row.push({ i: -1, j: -1 });
+      }
+      distanceMap.push([...row]);
+    }
+    const start = state.graph.start;
+    const target = state.graph.target;
+    let Completed = false;
+    let queue = [start];
+    distanceMap[start.i][start.j] = start;
+    const portal1 = state.graph.portal1;
+    const portal2 = state.graph.portal2;
+
+    while (queue.length != 0 && !Completed) {
+      // console.log(queue);
+
+      // let CurrentNode = queue.shift();
+      let CurrentNode = MinhuristicValue(queue);
+      queue = queue.filter((node) => {
+        return node.i != CurrentNode.i || node.j != CurrentNode.j;
+      });
+      if (CurrentNode.i == target.i && CurrentNode.j == target.j) {
+        Completed = true;
+      } else {
+        if (animate) {
+          let arr = [CurrentNode];
+          postMessage({
+            type: SetExploredNodes,
+            payload: JSON.stringify({ arr }),
+          });
+          pause();
+        }
+        // graph[CurrentNode.i][CurrentNode.j] = ExploredNode;
+
+        const neighbours = GetNeighbours({ ...CurrentNode, length });
+        // console.log(neighbours);
+        neighbours.forEach(({ i, j }, idx) => {
+          if (graph[i][j] != ExploredNode && graph[i][j] != Wall) {
+            // if (!queue.includes({ i, j }) && graph[i][j] != Wall) {
+            if (
+              graph[i][j] != StartNode &&
+              graph[i][j] != TargetNode &&
+              graph[i][j] != PortalNode1 &&
+              graph[i][j] != PortalNode2
+            ) {
+              graph[i][j] = ExploredNode;
+            }
+            if (distanceMap[i][j].i == -1) {
+              distanceMap[i][j] = CurrentNode;
+            }
+
+            queue.push({ i, j });
+          }
+        });
+      }
+    }
+    let CurrentNode = distanceMap[target.i][target.j];
+    let FinalPath = [];
+    // distance = distanceMap[CurrentNode.i][CurrentNode.j];
+    // console.log(distanceMap);
+    let Break = true;
+    let PreviousNode = { i: -1, j: -1 };
+    while (
+      !(CurrentNode.i == PreviousNode.i && CurrentNode.j == PreviousNode.j)
+    ) {
+      FinalPath.unshift(CurrentNode);
+      PreviousNode.i = CurrentNode.i;
+      PreviousNode.j = CurrentNode.j;
+      CurrentNode = distanceMap[CurrentNode.i][CurrentNode.j];
+    }
+
+    return { FinalPath, isFinalPath: FinalPath.length != 0 };
+  };
   const ExploreGraphAnimate = () => {
     const graph = state.graph.graph;
     const length = state.graph.size;
     AlgoStartTime = Date.now();
+    const Algo = state.theme.algo;
     const portal1 = state.graph.portal1;
     const portal2 = state.graph.portal2;
     console.log(portal1, portal2);
-    // const neighbours = GetNeighbours({ ...state.graph.start, length });
-    // neighbours.map((node) => {
-    //   let arr = [node];
-    //   postMessage({
-    //     type: SetExploredNodes,
-    //     payload: JSON.stringify({ arr }),
-    //   });
-    // });
-    // postMessage({ type: Stop, payload: "Stop Algo" });
-    // const printer = () => {
-    //   console.log("requested animation Frame");
-    // };
-    // requestAnimationFrame(printer);
     animate = true;
-    // const { FinalPath, isFinalPath } = DepthFirstSearchIterative();
-    const { FinalPath, isFinalPath } = BreathFirstSearch();
+    let FinalPath = [];
+    let isFinalPath = false;
+    switch (Algo) {
+      case "Astar": {
+        const { FinalPath: path, isFinalPath: ispath } = Astart();
+        FinalPath = path;
+        isFinalPath = ispath;
+        break;
+      }
+      case "BFS": {
+        const { FinalPath: path, isFinalPath: ispath } = BreathFirstSearch();
+        FinalPath = path;
+        isFinalPath = ispath;
+        break;
+      }
+      case "DFS": {
+        const {
+          FinalPath: path,
+          isFinalPath: ispath,
+        } = DepthFirstSearchIterative();
+        FinalPath = path;
+        isFinalPath = ispath;
+        break;
+      }
+    }
+
     animate = false;
     let index = 0;
     let flag = 0;
@@ -334,7 +454,35 @@ export default function Worker() {
     const graph = state.graph.graph;
     const length = state.graph.size;
     // const { FinalPath, isFinalPath } = DepthFirstSearchIterative();
-    const { FinalPath, isFinalPath } = BreathFirstSearch();
+    // const { FinalPath, isFinalPath } = BreathFirstSearch();
+    // const { FinalPath, isFinalPath } = Astart();
+    let FinalPath = [];
+    let isFinalPath = false;
+    const Algo = state.theme.algo;
+
+    switch (Algo) {
+      case "Astar": {
+        const { FinalPath: path, isFinalPath: ispath } = Astart();
+        FinalPath = path;
+        isFinalPath = ispath;
+        break;
+      }
+      case "BFS": {
+        const { FinalPath: path, isFinalPath: ispath } = BreathFirstSearch();
+        FinalPath = path;
+        isFinalPath = ispath;
+        break;
+      }
+      case "DFS": {
+        const {
+          FinalPath: path,
+          isFinalPath: ispath,
+        } = DepthFirstSearchIterative();
+        FinalPath = path;
+        isFinalPath = ispath;
+        break;
+      }
+    }
     if (isFinalPath) {
       FinalPath.map(({ i, j }) => {
         if (

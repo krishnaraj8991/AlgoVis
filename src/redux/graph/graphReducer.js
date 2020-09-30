@@ -202,8 +202,22 @@ const graphReducer = (state = initialState, action) => {
       let graph = JSON.parse(JSON.stringify(state.graph));
       const boundary = state.boundaryWalls;
       for (let i = 0; i < state.size; i++) {
-        graph[0][i] = boundary ? BlankNode : Wall;
-        graph[i][0] = boundary ? BlankNode : Wall;
+        if (
+          graph[0][i] != TargetNode &&
+          graph[0][i] != StartNode &&
+          graph[0][i] != PortalNode1 &&
+          graph[0][i] != PortalNode2
+        ) {
+          graph[0][i] = boundary ? BlankNode : Wall;
+        }
+        if (
+          graph[i][0] != TargetNode &&
+          graph[i][0] != StartNode &&
+          graph[i][0] != PortalNode1 &&
+          graph[i][0] != PortalNode2
+        ) {
+          graph[i][0] = boundary ? BlankNode : Wall;
+        }
       }
       return {
         ...state,
@@ -424,7 +438,6 @@ const graphReducer = (state = initialState, action) => {
       let graph = JSON.parse(JSON.stringify(state.graph));
       const arr = action.payload;
       let focus = state.focusNode;
-      console.log("Fixing path");
       arr.map(({ i, j }) => {
         if (!state.boundaryWalls || !(i == 0 || j == 0)) {
           if (

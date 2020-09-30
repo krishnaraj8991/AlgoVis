@@ -1,4 +1,4 @@
-import { flip, flip_Animation_State, Play_Pause } from "./themeType";
+import { flip, flip_Animation_State, Play_Pause, Set_Algo } from "./themeType";
 
 export const Flip = () => {
   return {
@@ -14,5 +14,11 @@ export const FlipAnimationState = () => {
 export const PlayPauseAction = () => {
   return {
     type: Play_Pause,
+  };
+};
+export const SetAlgo = (val) => {
+  return {
+    type: Set_Algo,
+    payload: val,
   };
 };

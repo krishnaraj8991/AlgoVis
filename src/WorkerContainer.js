@@ -75,6 +75,7 @@ function WorkerContainer() {
       state.graph.movingPortal2
     );
   });
+  const ActivePortal = useSelector((state) => state.graph.ActivePortal);
   const lastarr = useRef(null);
   useEffect(() => {
     workerInstance.addEventListener("message", (action) => {
@@ -208,7 +209,7 @@ function WorkerContainer() {
         });
       }, 200);
     }
-  }, [start, target, Moving]);
+  }, [start, target, Moving, ActivePortal]);
   useEffect(() => {
     console.log("worker Animation updated to :-", animation.current);
   }, [animation.current]);
