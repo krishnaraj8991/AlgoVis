@@ -198,6 +198,8 @@ const WallAnimation = keyframes`
 }
 
 `;
+/* animation: ${WallAnimation} ${(props) =>
+      props.Speed}ms ease-in-out forwards; */
 
 const AnimationDiv = styled.div`
   /* position: absolute; */
@@ -222,7 +224,7 @@ const AnimationDiv = styled.div`
   }
   &.WallTransition {
     clip-path: polygon(12% 12%, 60% 0%, 100% 40%, 88% 88%, 40% 100%, 0 60%);
-    animation: ${WallAnimation} ${(props) => props.Speed}ms ease-in-out forwards;
+    animation: ${WallAnimation} 300ms ease-in-out forwards;
     opacity: 1;
     background-color: black;
   }
@@ -360,6 +362,7 @@ const Innerdiv = styled.div`
     transform: rotate(-45deg);
   }
 `;
+
 const Hex = ({ s, x, y, count, val, Ref }) => {
   // const AnimationRef = useRef();
 

@@ -164,7 +164,10 @@ const graphReducer = (state = initialState, action) => {
         graph[i][j] != PortalNode2
       ) {
         graph[prevI][prevJ] = beforeStart;
-        const newBeforeStart = graph[i][j];
+        let newBeforeStart = graph[i][j];
+        if (newBeforeStart == StartNode) {
+          newBeforeStart = BlankNode;
+        }
         graph[i][j] = StartNode;
         return {
           ...state,
@@ -187,7 +190,10 @@ const graphReducer = (state = initialState, action) => {
         graph[i][j] != PortalNode2
       ) {
         graph[prevI][prevJ] = beforeTarget;
-        const newBeforeTarget = graph[i][j];
+        let newBeforeTarget = graph[i][j];
+        if (newBeforeTarget == TargetNode) {
+          newBeforeTarget = BlankNode;
+        }
         graph[i][j] = TargetNode;
         return {
           ...state,
@@ -238,6 +244,7 @@ const graphReducer = (state = initialState, action) => {
           target: { i: ar.length - 1, j: ar.length - 1 },
           beforeStart: BlankNode,
           beforeTarget: BlankNode,
+          ActivePortal: true,
           portal1: { i: 2, j: 2 },
           portal2: { i: ar.length - 2, j: ar.length - 2 },
           beforePortal1: BlankNode,
@@ -255,7 +262,7 @@ const graphReducer = (state = initialState, action) => {
         boundaryWalls: true,
         start: { i: 1, j: 1 },
         target: { i: ar.length - 1, j: ar.length - 1 },
-
+        ActivePortal: true,
         beforeStart: BlankNode,
         beforeTarget: BlankNode,
         portal1: { i: 2, j: 2 },

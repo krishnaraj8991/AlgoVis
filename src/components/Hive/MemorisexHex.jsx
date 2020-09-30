@@ -152,17 +152,17 @@ function MemorisexHex(props) {
 
   useEffect(() => {
     if (val == WallTransition) {
-      const endTime = new Date().getTime() + Speed;
+      const endTime = new Date().getTime() + 300;
       const AnimationTimeout = () => {
         const currentTime = new Date().getTime();
         if (currentTime > endTime) {
           dispatch(FixAsWall({ i, j }));
         } else {
-          requestAnimationFrame(AnimationTimeout);
+          window.requestAnimationFrame(AnimationTimeout);
         }
       };
       // kick it all off
-      requestAnimationFrame(AnimationTimeout);
+      window.requestAnimationFrame(AnimationTimeout);
     }
   }, [val]);
 
