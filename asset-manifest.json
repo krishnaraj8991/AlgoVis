@@ -1,0 +1,38 @@
+{
+  "files": {
+    "main.css": "/AlgoVis/static/css/main.5ecd60fb.chunk.css",
+    "main.js": "/AlgoVis/static/js/main.f2c922d1.chunk.js",
+    "main.js.map": "/AlgoVis/static/js/main.f2c922d1.chunk.js.map",
+    "runtime-main.js": "/AlgoVis/static/js/runtime-main.c4723263.js",
+    "runtime-main.js.map": "/AlgoVis/static/js/runtime-main.c4723263.js.map",
+    "static/js/2.3abc7d80.chunk.js": "/AlgoVis/static/js/2.3abc7d80.chunk.js",
+    "static/js/2.3abc7d80.chunk.js.map": "/AlgoVis/static/js/2.3abc7d80.chunk.js.map",
+    "static/js/3.76a509c6.chunk.js": "/AlgoVis/static/js/3.76a509c6.chunk.js",
+    "static/js/3.76a509c6.chunk.js.map": "/AlgoVis/static/js/3.76a509c6.chunk.js.map",
+    "index.html": "/AlgoVis/index.html",
+    "precache-manifest.bee17ca67a1a09ad829c95825b4a6db4.js": "/AlgoVis/precache-manifest.bee17ca67a1a09ad829c95825b4a6db4.js",
+    "service-worker.js": "/AlgoVis/service-worker.js",
+    "static/css/main.5ecd60fb.chunk.css.map": "/AlgoVis/static/css/main.5ecd60fb.chunk.css.map",
+    "static/js/2.3abc7d80.chunk.js.LICENSE.txt": "/AlgoVis/static/js/2.3abc7d80.chunk.js.LICENSE.txt",
+    "static/media/caret-down.ca82bc74.svg": "/AlgoVis/static/media/caret-down.ca82bc74.svg",
+    "static/media/crescent-moon-svgrepo-com.8c7a23c1.svg": "/AlgoVis/static/media/crescent-moon-svgrepo-com.8c7a23c1.svg",
+    "static/media/innerring.448b9283.svg": "/AlgoVis/static/media/innerring.448b9283.svg",
+    "static/media/loadingIcon5.05246fb6.svg": "/AlgoVis/static/media/loadingIcon5.05246fb6.svg",
+    "static/media/middlering.21dfcf4c.svg": "/AlgoVis/static/media/middlering.21dfcf4c.svg",
+    "static/media/outerring.4bc35023.svg": "/AlgoVis/static/media/outerring.4bc35023.svg",
+    "static/media/pauseIcon.baa40420.svg": "/AlgoVis/static/media/pauseIcon.baa40420.svg",
+    "static/media/pauseIcon2.56e1dc7c.svg": "/AlgoVis/static/media/pauseIcon2.56e1dc7c.svg",
+    "static/media/playIcon.0dd89474.svg": "/AlgoVis/static/media/playIcon.0dd89474.svg",
+    "static/media/playIcon2.9e631453.svg": "/AlgoVis/static/media/playIcon2.9e631453.svg",
+    "static/media/portalActive.b8724df7.svg": "/AlgoVis/static/media/portalActive.b8724df7.svg",
+    "static/media/start.4fa7be80.svg": "/AlgoVis/static/media/start.4fa7be80.svg",
+    "static/media/sun-svgrepo-com.eefbcdcb.svg": "/AlgoVis/static/media/sun-svgrepo-com.eefbcdcb.svg",
+    "static/media/target.696a6c6d.svg": "/AlgoVis/static/media/target.696a6c6d.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.c4723263.js",
+    "static/js/2.3abc7d80.chunk.js",
+    "static/css/main.5ecd60fb.chunk.css",
+    "static/js/main.f2c922d1.chunk.js"
+  ]
+}
