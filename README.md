@@ -3,6 +3,7 @@
 Algorithm Visualizer- web app using Reactjs / Redux/ WebWorker.
 
 A Visualization tool which can visualize different pathfinding algorithms in different scenarios.
+
 It can visualize algorithm's such as:
 
 - **A Star search**
@@ -19,7 +20,7 @@ It can visualize algorithm's such as:
 - **Hexagonal Grid**
 - **Light/Dark theme**
 
-###### You can access it here: https://krishnaraj8991.github.io/AlgoVis/
+##### You can access it here: https://krishnaraj8991.github.io/AlgoVis/
 
 WebApp ScreenShots:
 
