@@ -5,19 +5,19 @@ Algorithm Visualizer- web app using Reactjs / Redux/ WebWorker.
 A Visualization tool which can visualize different pathfinding algorithms in different scenarios.
 It can visualize algorithm's such as:
 
-- A Star search
-- Dijkstra's Algorithm
-- Greedy Best-First search
-- Breadth-first search
-- Depth-first search
+- **A Star search**
+- **Dijkstra's Algorithm**
+- **Greedy Best-First search**
+- **Breadth-first search**
+- **Depth-first search**
 
 ## Some Other Features:
 
-- Re-sizable Grid
-- Portals
-- Infinite 2D plan
-- Hexagonal Grid
-- Light/Dark theme
+- **Re-sizable Grid**
+- **Portals**
+- **Infinite 2D plan**
+- **Hexagonal Grid**
+- **Light/Dark theme**
 
 ###### You can access it here: https://krishnaraj8991.github.io/AlgoVis/
 
