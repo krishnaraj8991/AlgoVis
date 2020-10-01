@@ -1,19 +1,21 @@
 {
   "files": {
     "main.css": "/AlgoVis/static/css/main.5ecd60fb.chunk.css",
-    "main.js": "/AlgoVis/static/js/main.fca6d74e.chunk.js",
-    "main.js.map": "/AlgoVis/static/js/main.fca6d74e.chunk.js.map",
-    "runtime-main.js": "/AlgoVis/static/js/runtime-main.c4723263.js",
-    "runtime-main.js.map": "/AlgoVis/static/js/runtime-main.c4723263.js.map",
-    "static/js/2.3abc7d80.chunk.js": "/AlgoVis/static/js/2.3abc7d80.chunk.js",
-    "static/js/2.3abc7d80.chunk.js.map": "/AlgoVis/static/js/2.3abc7d80.chunk.js.map",
-    "static/js/3.76a509c6.chunk.js": "/AlgoVis/static/js/3.76a509c6.chunk.js",
-    "static/js/3.76a509c6.chunk.js.map": "/AlgoVis/static/js/3.76a509c6.chunk.js.map",
+    "main.js": "/AlgoVis/static/js/main.b75b97bd.chunk.js",
+    "main.js.map": "/AlgoVis/static/js/main.b75b97bd.chunk.js.map",
+    "runtime-main.js": "/AlgoVis/static/js/runtime-main.2fff9f50.js",
+    "runtime-main.js.map": "/AlgoVis/static/js/runtime-main.2fff9f50.js.map",
+    "static/js/2.a1c09d24.chunk.js": "/AlgoVis/static/js/2.a1c09d24.chunk.js",
+    "static/js/2.a1c09d24.chunk.js.map": "/AlgoVis/static/js/2.a1c09d24.chunk.js.map",
+    "static/js/3.097d9dea.chunk.js": "/AlgoVis/static/js/3.097d9dea.chunk.js",
+    "static/js/3.097d9dea.chunk.js.map": "/AlgoVis/static/js/3.097d9dea.chunk.js.map",
+    "a7ed9bd9bd44e46065d9.worker.js": "/AlgoVis/a7ed9bd9bd44e46065d9.worker.js",
+    "a7ed9bd9bd44e46065d9.worker.js.map": "/AlgoVis/a7ed9bd9bd44e46065d9.worker.js.map",
     "index.html": "/AlgoVis/index.html",
-    "precache-manifest.bb8ff39d6f22a1d42766743316d8ef59.js": "/AlgoVis/precache-manifest.bb8ff39d6f22a1d42766743316d8ef59.js",
+    "precache-manifest.76d495bcd69e13b0f776287af53039d4.js": "/AlgoVis/precache-manifest.76d495bcd69e13b0f776287af53039d4.js",
     "service-worker.js": "/AlgoVis/service-worker.js",
     "static/css/main.5ecd60fb.chunk.css.map": "/AlgoVis/static/css/main.5ecd60fb.chunk.css.map",
-    "static/js/2.3abc7d80.chunk.js.LICENSE.txt": "/AlgoVis/static/js/2.3abc7d80.chunk.js.LICENSE.txt",
+    "static/js/2.a1c09d24.chunk.js.LICENSE.txt": "/AlgoVis/static/js/2.a1c09d24.chunk.js.LICENSE.txt",
     "static/media/caret-down.ca82bc74.svg": "/AlgoVis/static/media/caret-down.ca82bc74.svg",
     "static/media/crescent-moon-svgrepo-com.8c7a23c1.svg": "/AlgoVis/static/media/crescent-moon-svgrepo-com.8c7a23c1.svg",
     "static/media/innerring.448b9283.svg": "/AlgoVis/static/media/innerring.448b9283.svg",
@@ -30,9 +32,9 @@
     "static/media/target.696a6c6d.svg": "/AlgoVis/static/media/target.696a6c6d.svg"
   },
   "entrypoints": [
-    "static/js/runtime-main.c4723263.js",
-    "static/js/2.3abc7d80.chunk.js",
+    "static/js/runtime-main.2fff9f50.js",
+    "static/js/2.a1c09d24.chunk.js",
     "static/css/main.5ecd60fb.chunk.css",
-    "static/js/main.fca6d74e.chunk.js"
+    "static/js/main.b75b97bd.chunk.js"
   ]
 }
