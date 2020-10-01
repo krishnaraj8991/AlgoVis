@@ -5,3 +5,4 @@ export const Set_Algo = "Set_Algo";
 export const Astar = "Astar";
 export const BFS = "BFS";
 export const DFS = "DFS";
+export const GreedyBFS = "GreedyBFS";

@@ -589,18 +589,18 @@ export default function Hive(props) {
     Limits.current.deltay = delta.y;
   }, [delta]);
 
-  useEffect(() => {
-    if (!animation.current && Start.current) {
-      // console.log(focusNode, "Changed Focus", animation.current);
-      Start.current = false;
-      requestAnimationFrame(() => {
-        BringToCenter({
-          Targeti: focusNode.i,
-          Targetj: focusNode.j,
-        });
-      });
-    }
-  }, [focusNode.current]);
+  // useEffect(() => {
+  //   // if (!animation.current && Start.current) {
+  //   //   // console.log(focusNode, "Changed Focus", animation.current);
+  //   //   Start.current = false;
+  //   //   requestAnimationFrame(() => {
+  //   //     BringToCenter({
+  //   //       Targeti: focusNode.i,
+  //   //       Targetj: focusNode.j,
+  //   //     });
+  //   //   });
+  //   // }
+  // }, [focusNode.current]);
   // Setting up Listners
   useEffect(() => {
     console.log("Listener Added");

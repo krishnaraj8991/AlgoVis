@@ -30,14 +30,18 @@ const NavbarNav = styled.ul`
     flex: 3 1 auto;
   } */
 
-  & #cl5 {
+  /* & #cl5 {
     flex: 2 1 auto;
+  } */
+  & #cl6 {
+    flex: 2 1 auto;
+    /* justify-content: center; */
   }
 
   & #cl2 {
     position: absolute;
     left: 50%;
-    top: 100%;
+    top: 120%;
     transform: translate(-50%, -50%);
   }
 `;

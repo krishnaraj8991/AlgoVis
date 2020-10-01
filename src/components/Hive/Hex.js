@@ -337,7 +337,7 @@ const Innerdiv = styled.div`
   justify-content: center;
   opacity: 0;
   &.Wall {
-    opacity: 0.4;
+    opacity: 0.3;
   }
   &.StartNode,
   &.TargetNode,

@@ -9,6 +9,7 @@ const {
   Set_Algo,
   DFS,
   Astar,
+  GreedyBFS,
 } = require("./themeType");
 
 const initialState = {
@@ -17,6 +18,7 @@ const initialState = {
   playpause: false,
   animationSpeed: 600,
   algo: BFS,
+  algoName: "Dijkstra's Algorithm",
 };
 const ThemeReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -36,15 +38,13 @@ const ThemeReducer = (state = initialState, action) => {
         playpause: !state.playpause,
       };
     case Set_Algo: {
-      if (
-        action.payload == BFS ||
-        action.payload == DFS ||
-        action.payload == Astar
-      ) {
-        console.log(action.payload, "Selected");
+      const { algo, algoName } = action.payload;
+      if (algo == BFS || algo == DFS || algo == Astar || algo == GreedyBFS) {
+        console.log(algoName, "Selected");
         return {
           ...state,
-          algo: action.payload,
+          algo,
+          algoName,
         };
       }
       return state;

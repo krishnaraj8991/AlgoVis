@@ -39,7 +39,7 @@ import {
   Set_Grid,
   Set_Size,
 } from "./graphTypes";
-let DataSize = 10;
+let DataSize = 40;
 console.log("Initializing data", DataSize);
 const Generategraph = (Size) => {
   let ar = [];
@@ -261,12 +261,12 @@ const graphReducer = (state = initialState, action) => {
         graph: graph,
         boundaryWalls: true,
         start: { i: 1, j: 1 },
-        target: { i: ar.length - 1, j: ar.length - 1 },
+        target: { i: size - 1, j: size - 1 },
         ActivePortal: true,
         beforeStart: BlankNode,
         beforeTarget: BlankNode,
         portal1: { i: 2, j: 2 },
-        portal2: { i: ar.length - 2, j: ar.length - 2 },
+        portal2: { i: size - 2, j: size - 2 },
         beforePortal1: BlankNode,
         beforePortal2: BlankNode,
       };
@@ -363,6 +363,8 @@ const graphReducer = (state = initialState, action) => {
             graph[i][j] != StartNode &&
             graph[i][j] != TargetNode &&
             graph[i][j] != PortalNode1 &&
+            graph[i][j] != PathNodeTransition &&
+            graph[i][j] != PathNode &&
             graph[i][j] != PortalNode2
           ) {
             graph[i][j] = ExploredNode;
@@ -529,7 +531,7 @@ const graphReducer = (state = initialState, action) => {
       let { i: p2i, j: p2j } = state.portal2;
       let beforePortal1 = state.beforePortal1;
       let beforePortal2 = state.beforePortal2;
-      // console.log(graph, p1i, p1j);
+      // console.log(graph, p1i, p1j, p2i, p2j);
       if (ActivePortal) {
         graph[p1i][p1j] = beforePortal1;
         graph[p2i][p2j] = beforePortal2;
