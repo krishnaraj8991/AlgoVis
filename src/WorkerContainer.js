@@ -31,8 +31,13 @@ import {
   SetAsExplored,
   SetGrid,
 } from "./redux/graph/graphActions";
-import workerCom from "./WebWorkers/workerCom";
-import WebWorker from "./WebWorkers/workerSetup";
+// import workerCom from "./WebWorkers/workerCom";
+// import WebWorker from "./WebWorkers/workerSetup";
+
+// Import your worker
+
+import worker from "workerize-loader!./WebWorkers/workerCom"; // eslint-disable-line import/no-webpack-loader-syntax
+
 import {
   CurrentState,
   ConsoleLog,
@@ -48,7 +53,8 @@ import {
   FixGrid,
 } from "./WebWorkers/MessageTypes";
 import { PlayPauseAction } from "./redux/themeState/themeActions";
-const workerInstance = new WebWorker(workerCom);
+// const workerInstance = new WebWorker(workerCom);
+const workerInstance = worker();
 function WorkerContainer() {
   const dispatch = useDispatch();
   const state = useSelector((state) => state);
